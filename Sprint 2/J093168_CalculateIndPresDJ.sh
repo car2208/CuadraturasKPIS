@@ -9,6 +9,8 @@
 ### $6 : Ruta Log TERADATA
 ### $7 : Periodo :2022
 
+##sh /work1/teradata/shells/093168/J093168_CalculateIndPresDJ.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022
+##sh /work1/teradata/shells/093168/J093168_CalculateIndPresDJ.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD /work1/teradata/log/093168 2022
 ################################################################################
 
 

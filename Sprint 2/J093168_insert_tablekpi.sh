@@ -45,7 +45,8 @@ SEL CURRENT_TIMESTAMP;
 
 DELETE FROM ${BD_DQ}.T11906GRUPOKPI WHERE COD_GRUPOKPI IN (
 'KPI0142022',
-'KPI0152022'
+'KPI0152022',
+'KPI0162022',
 'KPI0172022',
 'KPI0182022',
 'KPI0192022',
@@ -94,7 +95,8 @@ values('KPI0362022','Cantidad de DJs presentadas - formularios 1609,1611,1662,16
 
 DELETE FROM ${BD_DQ}.T11907DETKPI WHERE COD_GRUPOKPI IN (
 'KPI0142022',
-'KPI0152022'
+'KPI0152022',
+'KPI0162022',
 'KPI0172022',
 'KPI0182022',
 'KPI0192022',
@@ -110,20 +112,20 @@ DELETE FROM ${BD_DQ}.T11907DETKPI WHERE COD_GRUPOKPI IN (
 );
 
 insert into ${BD_DQ}.T11907DETKPI VALUES('K014012022','KPI0142022','Cantidad de comprobantes válidos Casilla 514 - Hoteles y Restaurantes del personalizado (F-Virtual) respecto al  Transaccional (gastodeduc)',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP14VAL.sh');
-insert into ${BD_DQ}.T11907DETKPI VALUES('K014032022','KPI0142022','Cantidad de comprobantes válidos Casilla 514 - Hoteles y Restaurantes del Mongo DB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP14VAL.sh');
-insert into ${BD_DQ}.T11907DETKPI VALUES('K014022022','KPI0142022','Cantidad de comprobantes observados Casilla 514 - Hoteles y Restaurantes del personalizado (F-Virtual) respecto al  Transaccional (gastodeduc)',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP14OBS.sh');
+insert into ${BD_DQ}.T11907DETKPI VALUES('K014022022','KPI0142022','Cantidad de comprobantes válidos Casilla 514 - Hoteles y Restaurantes del Mongo DB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP14VAL.sh');
+insert into ${BD_DQ}.T11907DETKPI VALUES('K014032022','KPI0142022','Cantidad de comprobantes observados Casilla 514 - Hoteles y Restaurantes del personalizado (F-Virtual) respecto al  Transaccional (gastodeduc)',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP14OBS.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K014042022','KPI0142022','Cantidad de comprobantes observados Casilla 514 - Hoteles y Restaurantes del Mongo DB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP14OBS.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K015012022','KPI0152022','Suma de Montos de comprobantes válidos Casilla 514 - Hoteles y Restaurantes del Personalizado (F-Virtual) respecto al Transaccional (gastodeduc)',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP15.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K015022022','KPI0152022','Suma de Montos de comprobantes válidos Casilla 514 - Hoteles y Restaurantes del MongoDB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP15.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K016012022','KPI0162022','Cantidad de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Servicios profesionales  del personalizado (F-Virtual) respecto al  Transaccional (gastodeduc)',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP16VAL.sh');
-insert into ${BD_DQ}.T11907DETKPI VALUES('K016032022','KPI0162022','Cantidad de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Servicios profesionales del Mongo DB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP16VAL.sh');
-insert into ${BD_DQ}.T11907DETKPI VALUES('K016022022','KPI0162022','Cantidad de comprobantes observados Casilla 514 - Deducción de gastos deducibles Servicios profesionales  del personalizado (F-Virtual) respecto al  Transaccional (gastodeduc)',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP16OBS.sh');
+insert into ${BD_DQ}.T11907DETKPI VALUES('K016022022','KPI0162022','Cantidad de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Servicios profesionales del Mongo DB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP16VAL.sh');
+insert into ${BD_DQ}.T11907DETKPI VALUES('K016032022','KPI0162022','Cantidad de comprobantes observados Casilla 514 - Deducción de gastos deducibles Servicios profesionales  del personalizado (F-Virtual) respecto al  Transaccional (gastodeduc)',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP16OBS.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K016042022','KPI0162022','Cantidad de comprobantes observaods Casilla 514 - Deducción de gastos deducibles Servicios profesionales del Mongo DB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP16OBS.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K017012022','KPI0172022','Suma de Montos de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Servicios profesionales del Personalizado (F-Virtual) respecto al Transaccional (gastodeduc)',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP17.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K017022022','KPI0172022','Suma de Montos de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Servicios profesionales del MongoDB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP17.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K018012022','KPI0182022','Cantidad de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Alquiler inmuebles del personalizado (F-Virtual) respecto al  Transaccional (gastodeduc)',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP18.sh');
-insert into ${BD_DQ}.T11907DETKPI VALUES('K018032022','KPI0182022','Cantidad de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Alquiler inmuebles del Mongo DB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP18.sh');
-insert into ${BD_DQ}.T11907DETKPI VALUES('K018022022','KPI0182022','Cantidad de comprobantes observados Casilla 514 - Deducción de gastos deducibles Alquiler inmuebles  del personalizado (F-Virtual) respecto al  Transaccional (gastodeduc)',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP18.sh');
+insert into ${BD_DQ}.T11907DETKPI VALUES('K018022022','KPI0182022','Cantidad de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Alquiler inmuebles del Mongo DB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP18.sh');
+insert into ${BD_DQ}.T11907DETKPI VALUES('K018032022','KPI0182022','Cantidad de comprobantes observados Casilla 514 - Deducción de gastos deducibles Alquiler inmuebles  del personalizado (F-Virtual) respecto al  Transaccional (gastodeduc)',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP18.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K018042022','KPI0182022','Cantidad de comprobantes observaods Casilla 514 - Deducción de gastos deducibles Alquiler inmuebles del Mongo DB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP18.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K019012022','KPI0192022','Suma de Montos de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Alquiler inmuebles del Personalizado (F-Virtual) respecto al Transaccional (gastodeduc)',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP19.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K019022022','KPI0192022','Suma de Montos de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Alquiler inmuebles del MongoDB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP19.sh');
@@ -132,8 +134,8 @@ insert into ${BD_DQ}.T11907DETKPI VALUES('K020022022','KPI0202022','Cantidad de 
 insert into ${BD_DQ}.T11907DETKPI VALUES('K021012022','KPI0212022','Suma de Montos de comprobantes válidos Casilla 514 - Deducción de gastos deducibles EsSalud Trabajadores del Hogar del personalizado (F-Virtual) respecto al  Transaccional (gastodeduc)',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP21.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K021022022','KPI0212022','Suma de Montos de comprobantes válidos Casilla 514 - Deducción de gastos deducibles EsSalud Trabajadores del Hogar del Mongo DB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP21.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K022012022','KPI0222022','Cantidad de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Turismo del Transaccional (gastodeduc) respecto al F-Virtual',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP022.sh');
-insert into ${BD_DQ}.T11907DETKPI VALUES('K022032022','KPI0222022','Cantidad de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Turismo del MongoDB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP022.sh');
-insert into ${BD_DQ}.T11907DETKPI VALUES('K022022022','KPI0222022','Cantidad de comprobantes observados Casilla 514 - Deducción de gastos deducibles Turismo del Transaccional (gastodeduc) respecto al F-Virtual',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP022.sh');
+insert into ${BD_DQ}.T11907DETKPI VALUES('K022022022','KPI0222022','Cantidad de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Turismo del MongoDB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP022.sh');
+insert into ${BD_DQ}.T11907DETKPI VALUES('K022032022','KPI0222022','Cantidad de comprobantes observados Casilla 514 - Deducción de gastos deducibles Turismo del Transaccional (gastodeduc) respecto al F-Virtual',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP022.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K022042022','KPI0222022','Cantidad de comprobantes observados Casilla 514 - Deducción de gastos deducibles Turismo del MongoDB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP022.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K023012022','KPI0232022','Suma de Montos de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Turismo del Transaccional (gastodeduc) respecto al F-Virtual',0.99,CURRENT_DATE,'GastoDeducible','F-Virtual',1,'J093168_KPIGRP023.sh');
 insert into ${BD_DQ}.T11907DETKPI VALUES('K023022022','KPI0232022','Suma de Montos de comprobantes válidos Casilla 514 - Deducción de gastos deducibles Turismo del MongoDB (Bdrenta) respecto al F-Virtual',0.99,CURRENT_DATE,'F-Virtual','MongoDB',1,'J093168_KPIGRP023.sh');

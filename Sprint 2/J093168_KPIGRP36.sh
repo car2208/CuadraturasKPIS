@@ -10,10 +10,9 @@
 ### $8 : Ruta Log TERADATA
 ### $9 : Periodo
 ### $10 : Fecha
-
-### sh J093168_KPIGRP36.sh tdtp01s2 usr_carga_desa twusr_carga_desa bddwedqd bddwestgd bddwetbd desa_dwh_data /work1/teradata/log/093168 2022 2022-01-01
-### sh J093168_KPIGRP36.sh tdsunat usr_carga_prod twusr_carga_prod bddwedq bddwestg bddwetb dwh_data /work1/teradata/log/093168 2022 2022-01-01
-
+### sh /work1/teradata/shells/093168/J093168_KPIGRP36.sh tdtp01s2 usr_carga_desa twusr_carga_desa bddwedqd bddwestgd bddwetbd desa_dwh_data /work1/teradata/log/093168 2022 2022-10-01
+### sh /work1/teradata/shells/093168/J093168_KPIGRP36.sh tdsunat usr_carga_prod twusr_carga_prod bddwedq bddwestg bddwetb dwh_data /work1/teradata/log/093168 2022 2022-10-01
+ 
 ################################################################################
 
 if [ $# -ne 10 ]; then echo 'Numero incorrecto de Parametros'; exit 1; fi
