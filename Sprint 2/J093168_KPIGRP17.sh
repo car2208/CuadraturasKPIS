@@ -8,8 +8,9 @@
 ### $5 : Base de datos Teradata - Staging
 ### $6 : Ruta Log TERADATA
 ### $7 : Periodo :2022
-### sh J093168_KPIGRP17VAL.sh tdtp01s2 usr_carga_desa twusr_carga_desa bddwedqd bddwestgd /work1/teradata/log/093168 2022
-### sh J093168_KPIGRP17VAL.sh tdsunat usr_carga_prod twusr_carga_prod bddwedq bddwestg /work1/teradata/log/093168 2022
+### sh /work1/teradata/shell/093168/J093168_KPIGRP17VAL.sh tdsunat usr_carga_prod twusr_carga_prod bddwedq bddwestg /work1/teradata/log/093168 2022
+### sh /work1/teradata/shell/093168/J093168_KPIGRP17VAL.sh tdtp01s2 usr_carga_desa twusr_carga_desa bddwedqd bddwestgd /work1/teradata/log/093168 2022
+
 ################################################################################
 
 
@@ -131,7 +132,7 @@ FROM ${BD_STG}.t12734cas514det a
 INNER JOIN ${BD_STG}.tmp093168_kpiperindj b ON a.num_sec = b.num_sec 
 WHERE a.cod_tip_gasto = '03'
 AND a.ind_archpers = '1'  
-AND a.ind_est_archpers = '0'
+AND a.ind_est_archpers <> '0'
 AND a.ind_est_formvirt= '0'
 AND a.fec_comprob >= CAST('${PERIODO}-01-01' AS DATE FORMAT 'YYYY-MM-DD')
 AND a.fec_comprob <= CAST('${PERIODO}-12-31' AS DATE FORMAT 'YYYY-MM-DD')
@@ -172,7 +173,7 @@ FROM ${BD_STG}.t12734cas514det_mongodb a
 INNER JOIN ${BD_STG}.tmp093168_kpiperindj b ON a.num_sec = b.num_sec 
 WHERE a.cod_tip_gasto = '03'
 AND a.ind_archpers = '1'  
-AND a.ind_est_archpers = '0'
+AND a.ind_est_archpers <> '0'
 AND a.ind_est_formvirt= '0'
 AND a.fec_comprob >= CAST('${PERIODO}-01-01' AS DATE FORMAT 'YYYY-MM-DD')
 AND a.fec_comprob <= CAST('${PERIODO}-12-31' AS DATE FORMAT 'YYYY-MM-DD')

@@ -7,6 +7,8 @@
 ### $4 : Base de datos Teradata - DQ
 ### $5 : Ruta Log
 
+##sh /work1/teradata/shells/093168/J093168_insert_tablekpi.sh tdsunat usr_carga_prod twusr_carga_prod bddwedq /work1/teradata/log/093168
+##sh /work1/teradata/shells/093168/J093168_insert_tablekpi.sh tdtp01s2 usr_carga_desa twusr_carga_desa bddwedqd /work1/teradata/log/093168
 
 ################################################################################
 

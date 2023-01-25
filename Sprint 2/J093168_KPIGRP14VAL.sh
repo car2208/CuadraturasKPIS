@@ -8,8 +8,9 @@
 ### $5 : Base de datos Teradata - Staging
 ### $6 : Ruta Log TERADATA
 ### $7 : Periodo :2022
+### sh /work1/teradata/shells/093168/J093168_KPIGRP14VAL.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022
 ### sh /work1/teradata/shells/093168/J093168_KPIGRP14VAL.sh tdtp01s2 usr_carga_desa twusr_carga_desa bddwedqd bddwestgd /work1/teradata/log/093168 2022
-##  sh /work1/teradata/shells/093168/J093168_KPIGRP14VAL.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022
+
 ################################################################################
 
 
