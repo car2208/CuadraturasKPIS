@@ -133,9 +133,6 @@ INNER JOIN ${BD_STG}.tmp093168_kpiperindj b ON a.num_sec = b.num_sec
 WHERE a.cod_tip_gasto = '03'
 AND a.ind_archpers = '1'  
 AND a.ind_est_archpers <> '0'
-AND a.ind_est_formvirt= '0'
-AND a.fec_comprob >= CAST('${PERIODO}-01-01' AS DATE FORMAT 'YYYY-MM-DD')
-AND a.fec_comprob <= CAST('${PERIODO}-12-31' AS DATE FORMAT 'YYYY-MM-DD')
 ) WITH DATA NO PRIMARY INDEX;
 
 
@@ -174,9 +171,6 @@ INNER JOIN ${BD_STG}.tmp093168_kpiperindj b ON a.num_sec = b.num_sec
 WHERE a.cod_tip_gasto = '03'
 AND a.ind_archpers = '1'  
 AND a.ind_est_archpers <> '0'
-AND a.ind_est_formvirt= '0'
-AND a.fec_comprob >= CAST('${PERIODO}-01-01' AS DATE FORMAT 'YYYY-MM-DD')
-AND a.fec_comprob <= CAST('${PERIODO}-12-31' AS DATE FORMAT 'YYYY-MM-DD')
 ) WITH DATA NO PRIMARY INDEX;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell

@@ -126,10 +126,7 @@ AS
 	INNER JOIN ${BD_STG}.tmp093168_kpiperindj b ON a.num_sec = b.num_sec 
 	WHERE a.cod_tip_gasto = '05'
 	AND a.ind_est_archpers = '0'  -- OBSERVADO
-	AND a.ind_inconsistencia <> 'I1'
-	AND a.fec_comprob >= CAST('${PERIODO}-01-01' AS DATE FORMAT 'YYYY-MM-DD')
-	AND a.fec_comprob <= CAST('${PERIODO}-12-31' AS DATE FORMAT 'YYYY-MM-DD')
-	AND a.des_inconsistencia <> ' '
+	AND a.ind_archpers = '1'
 ) WITH DATA NO PRIMARY INDEX;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
@@ -162,10 +159,7 @@ FROM ${BD_STG}.t12734cas514det_mongodb a
 INNER JOIN ${BD_STG}.tmp093168_kpiperindj b ON a.num_sec = b.num_sec 
 WHERE a.cod_tip_gasto = '05'
 AND a.ind_est_archpers = '0'  -- OBSERVADO
-AND a.ind_inconsistencia <> 'I1'
-AND a.fec_comprob >= CAST('${PERIODO}-01-01' AS DATE FORMAT 'YYYY-MM-DD')
-AND a.fec_comprob <= CAST('${PERIODO}-12-31' AS DATE FORMAT 'YYYY-MM-DD')
-AND a.des_inconsistencia <> ' '
+AND a.ind_archpers = '1'  -- personalizado
 ) WITH DATA NO PRIMARY INDEX;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
