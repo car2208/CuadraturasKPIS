@@ -273,6 +273,8 @@ SELECT
         x0.per_decla
 FROM ${BD_STG}.tmp093168_kpigr03_detcnt_tr x0
 LEFT JOIN ${BD_STG}.tmp093168_kpiperindj x1 on x0.num_ruc=x1.num_ruc
+INNER JOIN ${BD_STG}.dds x2 ON x0.num_ruc=x2.dds_numruc 
+WHERE x2.dds_domici = '1'  AND x2.dds_docide IN ('1','2','3','4','5','7','8') 
 ) WITH DATA NO PRIMARY INDEX ;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
