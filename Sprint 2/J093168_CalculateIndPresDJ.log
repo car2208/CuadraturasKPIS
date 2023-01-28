@@ -1,0 +1,185 @@
+BTEQ 16.20.00.07 (32-bit) Sat Jan 28 01:03:17 2023 PID: 18743564
+ 
++---------+---------+---------+---------+---------+---------+---------+----
+
+LOGON tdtp01s2/usr_carga_desa,
+
+ *** Logon successfully completed.
+ *** Teradata Database Release is 16.20.53.55                   
+ *** Teradata Database Version is 16.20.53.55                     
+ *** Transaction Semantics are BTET.
+ *** Session Character Set Name is 'ASCII'.
+ 
+ *** Total elapsed time was 1 second.
+ 
++---------+---------+---------+---------+---------+---------+---------+----
+
+DATABASE bddwedqd;
+
+ *** New default database accepted. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+----
+
+.SET FORMAT OFF;
++---------+---------+---------+---------+---------+---------+---------+----
+.SET WIDTH 32000;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.SET SEPARATOR '|';
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.SET TITLEDASHES OFF;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+SEL CURRENT_TIMESTAMP;
+
+ *** Query completed. One row found. One column returned. 
+ *** Total elapsed time was 1 second.
+
+            Current TimeStamp(6)
+2023-01-28 00:48:23.960000-05:00
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+
+/*========================================================================================= */
+/**********************************ARCHIVO PERSONALIZADO************************************/
+/*========================================================================================= */
+
+/**********Determina Indicador de presentación de DJ Anual *********************************/
+
+
+CREATE MULTISET VOLATILE TABLE tmp093168_kpiperson_dj1 as
+(
+SELECT num_ruc,MAX(num_sec) as num_sec
+FROM bddwestgd.t5847ctldecl 
+WHERE num_ejercicio = 2022
+AND num_formul = '0709' 
+AND ind_actual = '1' 
+AND ind_estado = '0' 
+AND ind_proceso = '1'
+GROUP BY 1
+) with data no primary INDEX ON COMMIT PRESERVE ROWS
+;
+
+ *** Table has been created. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+------------1. Sí presentaron ----------------------
+
+CREATE MULTISET VOLATILE TABLE tmp093168_kpiperson_dj2 as
+(
+SELECT num_ruc,MAX(num_sec) as num_sec 
+FROM bddwestgd.t5847ctldecl
+WHERE num_ejercicio = 2022
+AND num_formul = '0709' 
+AND ind_estado = '2'
+GROUP BY 1
+)  with data no primary INDEX ON COMMIT PRESERVE ROWS
+;
+
+ *** Table has been created. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+------------2. No presentaron-------------------------
+
+
+CREATE MULTISET VOLATILE TABLE tmp093168_kpiperson_sindj as (
+SELECT num_ruc, num_sec FROM tmp093168_kpiperson_dj1 
+WHERE num_ruc NOT IN ( SELECT num_ruc FROM tmp093168_kpiperson_dj2)
+)  WITH DATA NO PRIMARY INDEX ON COMMIT PRESERVE ROWS
+;
+
+ *** Table has been created. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+
+------------3. Consolida Indicador -------------------
+
+
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = 'bddwestgd' AND TableName = 'tmp093168_kpiperindj';
+
+ *** Query completed. One row found. One column returned. 
+ *** Total elapsed time was 1 second.
+
+   1
+   1
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.IF activitycount = 0 THEN .GOTO ok
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+DROP TABLE bddwestgd.tmp093168_kpiperindj;
+
+ *** Table has been dropped. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+.label ok;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+CREATE MULTISET TABLE bddwestgd.tmp093168_kpiperindj as (
+SELECT num_ruc, num_sec,0 as ind_presdj FROM tmp093168_kpiperson_sindj 
+UNION ALL
+SELECT num_ruc,num_sec,1 FROM tmp093168_kpiperson_dj2
+)
+ WITH DATA PRIMARY INDEX (num_sec)
+;
+
+ *** Table has been created. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+
+/********************************************************************************************************/
+
+
+SEL CURRENT_TIMESTAMP;
+
+ *** Query completed. One row found. One column returned. 
+ *** Total elapsed time was 1 second.
+
+            Current TimeStamp(6)
+2023-01-28 00:48:24.590000-05:00
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+    
+LOGOFF;
+ *** You are now logged off from the DBC.
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+QUIT 0;
+ *** Exiting BTEQ...
+ *** RC (return code) = 0 
+  ***********************************************
+  ***  J093168_CalculateIndPresDJ   ***
+  ***            TERMINO PROCESO OK           ***
+  ***********************************************

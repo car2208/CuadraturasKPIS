@@ -113,7 +113,7 @@ DROP TABLE ${BD_STG}.tmp093168_kpiperindj;
 
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpiperindj as (
 SELECT num_ruc, num_sec,0 as ind_presdj FROM tmp093168_kpiperson_sindj 
-UNION ALLs
+UNION ALL
 SELECT num_ruc,num_sec,1 FROM tmp093168_kpiperson_dj2
 )
  WITH DATA PRIMARY INDEX (num_sec)

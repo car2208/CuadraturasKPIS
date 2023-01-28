@@ -1,8 +1,20 @@
+--DROP TABLE BDDWESTG.tmp093168_udjkpigr3;
+--DROP TABLE BDDWESTG.tmp093168_kpigr3_periodos_compag;
+--DROP TABLE BDDWESTG.tmp093168_udj_f616_kpigr3;
+--DROP TABLE BDDWESTG.tmp093168_kpigr3_periodos_f0616;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_detcnt_tr;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_detcntpertr;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_detcntperfv;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_detcntpermdb;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_cnorigen;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_cndestino1;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_cndestino2 ;
+--DROP TABLE BDDWESTG.DIF_K003012022;
+--DROP TABLE BDDWESTG.DIF_K003022022;
 
 /**********Obtiene Última DJ Form 0601 ********************************/
 
-DROP TABLE BDDWESTG.tmp093168_udjkpigr3;
-
+--DROP TABLE BDDWESTG.tmp093168_udjkpigr3;
 CREATE MULTISET TABLE BDDWESTG.tmp093168_udjkpigr3 as
 (
   SELECT t2.t03nabono,t2.t03norden,t2.t03formulario,
@@ -18,7 +30,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_udjkpigr3 as
     FROM BDDWESTG.t03djcab
     WHERE t03formulario = '0601' 
     AND t03periodo BETWEEN '202201' AND '202212'
-    AND t03f_presenta <= DATE '2022-10-27'
+    AND t03f_presenta <= DATE '2100-01-01'
     GROUP BY 1,2,3
   ) AS t1 
   INNER JOIN BDDWESTG.t03djcab t2 ON t2.t03periodo = t1.t03periodo 
@@ -32,7 +44,7 @@ WITH DATA NO PRIMARY INDEX;
 
 /******************Obtiene periodos declarados en el PLAME***************************/
 
-DROP TABLE BDDWESTG.tmp093168_kpigr3_periodos_compag;
+--DROP TABLE BDDWESTG.tmp093168_kpigr3_periodos_compag;
 CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr3_periodos_compag AS
 (
 
@@ -66,8 +78,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr3_periodos_compag AS
 
 /**************************Obtiene Última DJ de Form 0616 ********************************/
 
-DROP TABLE BDDWESTG.tmp093168_udj_f616_kpigr3;
-
+--DROP TABLE BDDWESTG.tmp093168_udj_f616_kpigr3;
 CREATE MULTISET TABLE BDDWESTG.tmp093168_udj_f616_kpigr3 as
 (
   SELECT t2.t03nabono,t2.t03norden,t2.t03formulario,
@@ -83,7 +94,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_udj_f616_kpigr3 as
   FROM BDDWESTG.t03djcab
   WHERE t03formulario = '0616' 
   AND t03periodo BETWEEN '202201' AND '202212'
-  AND t03f_presenta<= DATE '2022-10-27'
+  AND t03f_presenta<= DATE '2100-01-01'
   GROUP BY 1,2,3
   ) AS t1 
   INNER JOIN BDDWESTG.t03djcab t2 ON t2.t03periodo = t1.t03periodo 
@@ -98,8 +109,7 @@ WITH DATA NO PRIMARY INDEX;
 
 /*************** Obtiene periodos declarados en F0616****************************************/
 
-DROP TABLE BDDWESTG.tmp093168_kpigr3_periodos_f0616;
-
+--DROP TABLE BDDWESTG.tmp093168_kpigr3_periodos_f0616;
 CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr3_periodos_f0616 as
 (
   SELECT  DISTINCT x0.num_docide_dec,
@@ -123,7 +133,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr3_periodos_f0616 as
 
 /**************Union de Periodos Plame con Periodos f0616*********************************/
 
-DROP TABLE BDDWESTG.tmp093168_kpigr03_detcnt_tr;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_detcnt_tr;
 CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_detcnt_tr AS
 (
   
@@ -151,7 +161,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_detcnt_tr AS
 -------1. Detalle de Periodos  en transaccional
 
 
-DROP TABLE BDDWESTG.tmp093168_kpigr03_detcntpertr;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_detcntpertr;
 CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_detcntpertr
 AS(
 SELECT 
@@ -164,13 +174,15 @@ SELECT
         x0.per_decla
 FROM BDDWESTG.tmp093168_kpigr03_detcnt_tr x0
 LEFT JOIN BDDWESTG.tmp093168_kpiperindj x1 on x0.num_ruc=x1.num_ruc
+INNER JOIN bddwestgd.dds x2 ON x0.num_ruc=x2.dds_numruc 
+WHERE x2.dds_domici = '1'  AND x2.dds_docide IN ('1','2','3','4','5','7','8') 
 ) WITH DATA NO PRIMARY INDEX ; 
 
 
 -------2. Detalle de Periodos en Archivo Personalizado Fvirtual
 
 
-DROP TABLE BDDWESTG.tmp093168_kpigr03_detcntperfv;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_detcntperfv;
 CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_detcntperfv
 AS
 (
@@ -185,7 +197,7 @@ AS
 
 -------3. Detalle de Periodos en Archivo Personalizado MongoDB
 
-DROP TABLE BDDWESTG.tmp093168_kpigr03_detcntpermdb;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_detcntpermdb;
 CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_detcntpermdb
 AS(
   SELECT DISTINCT x1.num_ruc,COALESCE(x1.ind_presdj,0) as ind_presdj,
@@ -201,7 +213,7 @@ AS(
 
 ---------1. Conteo transaccional
 
-DROP TABLE BDDWESTG.tmp093168_kpigr03_cnorigen;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_cnorigen;
 CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_cnorigen AS
 (
   SELECT ind_presdj,count(per_decla) as cant_per_origen
@@ -210,7 +222,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_cnorigen AS
 ) WITH DATA NO PRIMARY INDEX;
 
 ---------2. Conteo en FVirtual
-DROP TABLE BDDWESTG.tmp093168_kpigr03_cndestino1;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_cndestino1;
 CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_cndestino1 AS
 (
   SELECT ind_presdj,count(periodo) as cant_per_destino1
@@ -219,7 +231,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_cndestino1 AS
 ) WITH DATA NO PRIMARY INDEX;
 
 --------3 Conteo en MongoDB
-DROP TABLE BDDWESTG.tmp093168_kpigr03_cndestino2 ;
+--DROP TABLE BDDWESTG.tmp093168_kpigr03_cndestino2 ;
 CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_cndestino2 AS
 (
   SELECT ind_presdj,count(num_perservicio) as cant_per_destino2
@@ -279,8 +291,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_cndestino2 AS
   ;
   
 /***************************************************************************************/
-   
-  SELECT * FROM BDDWESTG.DIF_K003012022
+ 
 
   CREATE MULTISET TABLE BDDWESTG.DIF_K003012022
   AS
@@ -329,3 +340,9 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_cndestino2 AS
       FROM BDDWESTG.tmp093168_kpigr03_detcntpermdb
     ) y0
   )WITH DATA NO PRIMARY INDEX;
+
+LOCK ROW FOR ACCESS
+SELECT * FROM BDDWESTG.DIF_K003012022 ORDER BY num_ruc;
+
+LOCK ROW FOR ACCESS
+SELECT * FROM BDDWESTG.DIF_K003022022 ORDER BY num_ruc;
