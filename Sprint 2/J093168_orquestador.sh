@@ -10,6 +10,7 @@
 ### $8 : Periodo
 ### $9 : Fecha sp1
 ### $10: Fecha sp2
+## sh J093168_orquestador tdsunat usr_carga_prod twusr_carga_prod bddwedq bddwestg bddwetb dwh_data /work1/teradata/log/093168 /work1/teradata/shells/093168 2022 2100-01-01 2022-10-01
 ################################################################################
 
 
