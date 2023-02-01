@@ -305,7 +305,7 @@ AS(
 	INNER JOIN ${BD_STG}.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
 	WHERE x0.tip_comp = '02'
 	AND SUBSTR(x0.num_serie,1,1) = 'E'
-	AND x0.periodo <='${per_lim}'
+	AND SUBSTR(x0.periodo,3,4)||SUBSTR(x0.periodo,1,2) <='${per_lim}'
 ) WITH DATA NO PRIMARY INDEX ; 
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
@@ -330,10 +330,10 @@ AS(
 			x0.COD_TIPCOMP,
 			x0.num_comp
 	FROM ${BD_STG}.T5373CAS107_MONGODB x0
-	LEFT JOIN ${BD_STG}.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
+	INNER JOIN ${BD_STG}.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
 	WHERE x0.COD_TIPCOMP = '02'
 	AND SUBSTR(x0.num_serie,1,1) = 'E'
-	AND x0.num_perservicio <='${per_lim}'
+	AND SUBSTR(x0.num_perservicio,3,4)||SUBSTR(x0.num_perservicio,1,2) <='${per_lim}'
 ) WITH DATA NO PRIMARY INDEX ; 
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
