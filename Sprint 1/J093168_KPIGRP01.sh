@@ -8,7 +8,8 @@
 ### $5 : Base de datos Teradata - Staging
 ### $6 : Ruta Log TERADATA
 ### $7 : Periodo :2022
-
+##  sh /work1/teradata/shells/093168/J093168_KPIGRP01.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022 2023-01-31
+##  sh /work1/teradata/shells/093168/J093168_KPIGRP01.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD /work1/teradata/log/093168 2022 2023-01-31
 ################################################################################
 
 
@@ -33,8 +34,9 @@ FILELOG=${path_log_TD}'/'${NOMBREBASE}'.log'
 FILEERR=${path_log_TD}'/'${NOMBREBASE}'.err'
 KPI_01='K001012022'
 KPI_02='K001022022'
-FILE_KPI01='/work1/teradata/dat/093168/DIFF_'${KPI_01}'_'${DATE}'.unl'
-FILE_KPI02='/work1/teradata/dat/093168/DIFF_'${KPI_02}'_'${DATE}'.unl'
+FILE_KPI01='/work1/teradata/dat/093168/DIF_'${KPI_01}'_CAS107_TRANVSFVIR_'${DATE}'.unl'
+FILE_KPI02='/work1/teradata/dat/093168/DIF_'${KPI_02}'_CAS107_FVIRVSMODB_'${DATE}'.unl'
+
 per_lim="$(echo ${FECHA_CORTE}|awk -F'-' '{ print $2 $1}')"
 
 
@@ -77,6 +79,28 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_cantrecibos as
 	AND ind_estado_rec = '0'
 	AND cod_tipcomp = '01'
 	AND fec_emision_rec <= DATE '${FECHA_CORTE}'
+) WITH DATA NO PRIMARY INDEX;
+
+.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
+
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_cantnotascredito';
+.IF activitycount = 0 THEN .GOTO ok 
+
+DROP TABLE ${BD_STG}.tmp093168_cantnotascredito;
+
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
+CREATE MULTISET TABLE ${BD_STG}.tmp093168_cantnotascredito as
+(
+	SELECT distinct num_ruc ,num_serie ,'07' as cod_tipcomp ,num_nota as num_comprob
+	FROM ${BD_STG}.t3634notacredito 
+	WHERE EXTRACT(YEAR FROM fec_emision_nc) = ${PERIODO}
+	AND ind_estado_nc = '0'
+	AND cod_tipcomp_ori = '01'
+	AND fec_emision_nc <= DATE '${FECHA_CORTE}'
 ) WITH DATA NO PRIMARY INDEX;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
@@ -158,6 +182,33 @@ WITH DATA NO PRIMARY INDEX;
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
 
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_cantnotcredtf616';
+.IF activitycount = 0 THEN .GOTO ok 
+
+DROP TABLE ${BD_STG}.tmp093168_cantnotcredtf616;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
+CREATE MULTISET TABLE ${BD_STG}.tmp093168_cantnotcredtf616 as
+(
+SELECT DISTINCT x0.num_docide_dec,x0.num_serie_cp,x0.tip_cp,CAST(x0.num_cp AS INTEGER) AS num_cp
+FROM ${BD_STG}.t1209f616rddet x0
+INNER JOIN ${BD_STG}.tmp093168_udjkpi1 x1 ON 
+     x0.num_paq = x1.t03nabono
+AND x0.formulario = x1.t03formulario
+AND x0.norden = x1.t03norden
+AND x0.per_periodo = x1.t03periodo
+WHERE x1.t03periodo BETWEEN '${PERIODO}01' and '${PERIODO}12'
+AND x1.t03formulario = '0616'
+AND x0.tip_docide_dec = '6'
+AND x0.tip_cp = '07'
+AND substr(x0.num_serie_cp,1,1) ='E'
+)
+WITH DATA NO PRIMARY INDEX;
+
+.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
+
 
 /******Union de RxH de CPE y Form 0616**************/
 
@@ -181,83 +232,23 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_detcantrxhe as
 		   TRIM(tip_cp),
 		   num_cp 
 	FROM ${BD_STG}.tmp093168_cantrecibosf616
+	UNION 
+	SELECT  TRIM(num_ruc) AS num_ruc,
+	        TRIM(num_serie) as num_serie,
+	        cod_tipcomp,
+			num_comprob 
+	FROM ${BD_STG}.tmp093168_cantnotascredito
+	UNION
+	SELECT
+		   TRIM(num_docide_dec),
+		   TRIM(num_serie_cp),
+		   TRIM(tip_cp),
+		   num_cp 
+	FROM ${BD_STG}.tmp093168_cantnotcredtf616
 )
 WITH DATA NO PRIMARY INDEX;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
-
-/*========================================================================================= */
-/**********************************ARCHIVO PERSONALIZADO************************************/
-/*========================================================================================= */
-
-/**********Determina Indicador de presentación de DJ Anual *********************************/
-
-
-CREATE MULTISET VOLATILE TABLE tmp093168_kpiperson_dj1 as
-(
-SELECT num_ruc,MAX(num_sec) as num_sec
-FROM ${BD_STG}.t5847ctldecl 
-WHERE num_ejercicio = ${PERIODO}
-AND num_formul = '0709' 
-AND ind_actual = '1' 
-AND ind_estado = '0' 
-AND ind_proceso = '1'
-GROUP BY 1
-) with data no primary INDEX ON COMMIT PRESERVE ROWS
-;
-
-.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
-
-------------1. Sí presentaron ----------------------
-
-CREATE MULTISET VOLATILE TABLE tmp093168_kpiperson_dj2 as
-(
-SELECT num_ruc,MAX(num_sec) as num_sec 
-FROM ${BD_STG}.t5847ctldecl
-WHERE num_ejercicio = ${PERIODO}
-AND num_formul = '0709' 
-AND ind_estado = '2'
-GROUP BY 1
-)  with data no primary INDEX ON COMMIT PRESERVE ROWS
-;
-
-.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
-
-------------2. No presentaron-------------------------
-
-
-CREATE MULTISET VOLATILE TABLE tmp093168_kpiperson_sindj as (
-SELECT num_ruc, num_sec FROM tmp093168_kpiperson_dj1 
-WHERE num_ruc NOT IN ( SELECT num_ruc FROM tmp093168_kpiperson_dj2)
-)  WITH DATA NO PRIMARY INDEX ON COMMIT PRESERVE ROWS
-;
-
-.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
-
-
-------------3. Consolida Indicador -------------------
-
-
-
-SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_kpiperindj';
-.IF activitycount = 0 THEN .GOTO ok 
-
-DROP TABLE ${BD_STG}.tmp093168_kpiperindj;
-.IF ERRORCODE <> 0 THEN .GOTO error_shell;
-
-.label ok;
-
-CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpiperindj as (
-SELECT num_ruc, num_sec,0 as ind_presdj FROM tmp093168_kpiperson_sindj 
-UNION ALL
-SELECT num_ruc,num_sec,1 FROM tmp093168_kpiperson_dj2
-)
- WITH DATA PRIMARY INDEX (num_sec)
-;
-
-.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
-
-
 
 /*======================================================================================*/
 /****************Genera Detalles con Indicador de Presentación***************************/
@@ -303,9 +294,8 @@ AS(
 			x0.num_comp
 	FROM ${BD_STG}.t5373cas107 x0
 	INNER JOIN ${BD_STG}.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
-	WHERE x0.tip_comp = '02'
+	WHERE x0.tip_comp in ('02','07')
 	AND SUBSTR(x0.num_serie,1,1) = 'E'
-	AND SUBSTR(x0.periodo,3,4)||SUBSTR(x0.periodo,1,2) <='${per_lim}'
 ) WITH DATA NO PRIMARY INDEX ; 
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
@@ -331,9 +321,8 @@ AS(
 			x0.num_comp
 	FROM ${BD_STG}.T5373CAS107_MONGODB x0
 	INNER JOIN ${BD_STG}.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
-	WHERE x0.COD_TIPCOMP = '02'
+	WHERE x0.COD_TIPCOMP in ('02','07')
 	AND SUBSTR(x0.num_serie,1,1) = 'E'
-	AND SUBSTR(x0.num_perservicio,3,4)||SUBSTR(x0.num_perservicio,1,2) <='${per_lim}'
 ) WITH DATA NO PRIMARY INDEX ; 
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
@@ -419,7 +408,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpi02_cndestino2 AS
 		(
 			SELECT 
 			       x0.ind_presdj,
-			       cant_rxh_origen as cant_origen,
+			       case when x0.ind_presdj=0 then (select sum(cant_rxh_origen) from ${BD_STG}.tmp093168_kpi01_cnorigen) else 0 end as cant_origen,
 			       coalesce(x1.cant_rxh_destino1,0) as cant_destino
 			FROM ${BD_STG}.tmp093168_kpi01_cnorigen x0
 			LEFT JOIN ${BD_STG}.tmp093168_kpi01_cndestino1 x1 
@@ -446,7 +435,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpi02_cndestino2 AS
 		(
 			SELECT x0.ind_presdj,
 			       x0.cant_rxh_destino1 AS cant_origen,
-			       coalesce(x1.cant_rxh_destino2,0) AS cant_destino
+			       case when x0.ind_presdj=0  then (select sum(cant_rxh_destino2) from ${BD_STG}.tmp093168_kpi02_cndestino2) else 0 end AS cant_destino
 			FROM ${BD_STG}.tmp093168_kpi01_cndestino1 x0
 			LEFT JOIN ${BD_STG}.tmp093168_kpi02_cndestino2 x1 
 			ON x0.ind_presdj=x1.ind_presdj
@@ -465,20 +454,20 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpi02_cndestino2 AS
 
 		LOCK ROW FOR ACCESS
 		SELECT   DISTINCT 
-				 '${KPI_01}'  as cod_kpi,
-			      y0.num_ruc,
-			      y0.ind_presdj,
+			      y0.num_ruc as num_ruc_trab,
 				  y0.num_serie,
 				  y0.cod_tipcomp,
 				  y0.num_comprob
 		FROM
 		(
-			SELECT num_ruc,ind_presdj,num_serie,cod_tipcomp,num_comprob 
+			SELECT num_ruc,num_serie,cod_tipcomp,num_comprob 
 			FROM ${BD_STG}.tmp093168_detcantrxhetr
 			EXCEPT ALL
-			SELECT num_ruc,ind_presdj,num_serie,tip_comp,cast(num_comp as integer)
+			SELECT num_ruc,num_serie,tip_comp,cast(num_comp as integer)
 			FROM ${BD_STG}.tmp093168_detcantrxhefv
-		) y0;
+		) y0
+		ORDER BY num_ruc
+		;
 
 	.IF ERRORCODE <> 0 THEN .GOTO error_shell;. 
 
@@ -489,20 +478,18 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpi02_cndestino2 AS
 
     LOCK ROW FOR ACCESS
 	SELECT    DISTINCT 
-	 		 '${KPI_02}' as cod_kpi,
-		      y0.num_ruc,
-		      y0.ind_presdj,
+		      y0.num_ruc as num_ruc_trab,
 			  y0.num_serie,
 			  y0.tip_comp  as cod_tipcomp,
 			  y0.num_comprob
 	FROM
 	(
-		SELECT num_ruc,ind_presdj,num_serie,tip_comp,cast(num_comp as integer)  as num_comprob
+		SELECT num_ruc,num_serie,tip_comp,cast(num_comp as integer)  as num_comprob
 		FROM ${BD_STG}.tmp093168_detcantrxhefv
 		EXCEPT ALL
-		SELECT num_ruc,ind_presdj,num_serie,cod_tipcomp,cast(num_comp as integer) 
+		SELECT num_ruc,num_serie,cod_tipcomp,cast(num_comp as integer) 
 		FROM ${BD_STG}.tmp093168_detcantrxhemdb
-	) y0;
+	) y0 ORDER BY num_ruc;
 
 	.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
