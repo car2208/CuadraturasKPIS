@@ -38,6 +38,9 @@ FILEERR=${path_log_TD}'/'${NOMBREBASE}'.err'
 
 ###############################################################SPRINT 1###############################################################################
 
+sh ${path_shell_TD}/J093168_CalculateIndPresDJ.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO}
+if [ $? -ne 0 ]; then echo "J093168_CalculateIndPresDJ|err|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; else echo "J093168_CalculateIndPresDJ|ok|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; fi
+
 sh ${path_shell_TD}/J093168_KPIGRP01.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO} ${FECHA_SP1}
 if [ $? -ne 0 ]; then echo "J093168_KPIGRP01|err|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; else echo "J093168_KPIGRP01|ok|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; fi
 
@@ -78,8 +81,6 @@ sh ${path_shell_TD}/J093168_KPIGRP13.sh ${server_TD} ${username_TD} ${walletPwd_
 if [ $? -ne 0 ]; then echo "J093168_KPIGRP13|err|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; else echo "J093168_KPIGRP13|ok|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; fi
 
 ######################################################SPRINT 2 ##########################################################################################
-sh ${path_shell_TD}/J093168_CalculateIndPresDJ.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO}
-if [ $? -ne 0 ]; then echo "J093168_CalculateIndPresDJ|err|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; else echo "J093168_CalculateIndPresDJ|ok|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; fi
 
 sh ${path_shell_TD}/J093168_KPIGRP14VAL.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO}
 if [ $? -ne 0 ]; then echo "J093168_KPIGRP14VAL|err|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; else echo "J093168_KPIGRP14VAL|ok|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; fi
