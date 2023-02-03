@@ -414,6 +414,16 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr04_cndestino2 AS
 
 /********************************************************************************/
 
+DROP TABLE ${BD_STG}.tmp093168_udjkpigr4;
+DROP TABLE ${BD_STG}.tmp093168_kpigr4_periodos_ctaind;
+DROP TABLE ${BD_STG}.tmp093168_kpigr04_detcnt_tr;
+DROP TABLE ${BD_STG}.tmp093168_kpigr04_detcntpertr;
+DROP TABLE ${BD_STG}.tmp093168_kpigr04_detcntperfv;
+DROP TABLE ${BD_STG}.tmp093168_kpigr04_detcntpermdb;
+DROP TABLE ${BD_STG}.tmp093168_kpigr04_cnorigen;
+DROP TABLE ${BD_STG}.tmp093168_kpigr04_cndestino1;
+DROP TABLE ${BD_STG}.tmp093168_kpigr04_cndestino2;
+
 SEL CURRENT_TIMESTAMP;
 
     

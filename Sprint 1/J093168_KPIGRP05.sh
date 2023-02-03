@@ -8,6 +8,8 @@
 ### $5 : Base de datos Teradata - Staging
 ### $6 : Ruta Log TERADATA
 ### $7: Periodo :${PERIODO}
+##  sh /work1/teradata/shells/093168/J093168_KPIGRP04.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022 2023-01-31
+##  sh /work1/teradata/shells/093168/J093168_KPIGRP04.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD /work1/teradata/log/093168 2022 2023-01-31
 
 ################################################################################
 
@@ -33,8 +35,8 @@ FILELOG=${path_log_TD}'/'${NOMBREBASE}'.log'
 FILEERR=${path_log_TD}'/'${NOMBREBASE}'.err'
 KPI_01='K005012022'
 KPI_02='K005022022'
-FILE_KPI01='/work1/teradata/dat/093168/DIFF_'${KPI_01}'_'${DATE}'.unl'
-FILE_KPI02='/work1/teradata/dat/093168/DIFF_'${KPI_02}'_'${DATE}'.unl'
+FILE_KPI01='/work1/teradata/dat/093168/DIF_'${KPI_01}'_CAS111_TRANVSFVIR_'${DATE}'.unl'
+FILE_KPI02='/work1/teradata/dat/093168/DIF_'${KPI_02}'_CAS111_FVIRVSMODB_'${DATE}'.unl'
 
 
 rm -f ${FILE_KPI01}
@@ -361,46 +363,44 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr05_cndestino2 AS
 
   LOCK ROW FOR ACCESS
   SELECT 
-    DISTINCT '${KPI_01}' as cod_kpi,
-      y0.num_ruc,
-    y0.ind_presdj,
-        y0.num_docide_empl,
+    DISTINCT 
+        y0.num_ruc as num_ruc_trab,
+        y0.num_docide_empl as num_ruc_empl,
         y0.num_nabono,
         y0.cod_formul,
         y0.num_orden,
-        y0.per_aporta
+        y0.per_aporta as per_dif
   FROM ${BD_STG}.tmp093168_kpigr05_detcntpertr y0
   INNER JOIN
   (
-    SELECT DISTINCT num_ruc,ind_presdj,num_docide_empl,
+    SELECT DISTINCT num_ruc,num_docide_empl,
                     SUBSTR(per_aporta,5,2)||SUBSTR(per_aporta,1,4) as per_aporta
     FROM ${BD_STG}.tmp093168_kpigr05_detcntpertr
     EXCEPT ALL
-    SELECT num_ruc,ind_presdj,num_doc,periodo 
+    SELECT num_ruc,num_doc,periodo 
     FROM ${BD_STG}.tmp093168_kpigr05_detcntperfv
   ) y1 
   ON y0.num_ruc=y1.num_ruc 
-  AND y0.ind_presdj=y1.ind_presdj 
   AND y0.num_docide_empl=y1.num_docide_empl
   AND SUBSTR(y0.per_aporta,5,2)||SUBSTR(y0.per_aporta,1,4)=y1.per_aporta;
   
   .IF ERRORCODE <> 0 THEN .GOTO error_shell;
   
+  .EXPORT RESET;
 
   .EXPORT FILE ${FILE_KPI02};
 
   LOCK ROW FOR ACCESS
-  SELECT DISTINCT '${KPI_02}'as cod_kpi,
-          y0.num_ruc,
-          y0.ind_presdj,
-        y0.num_doc,
-        y0.periodo  
+  SELECT DISTINCT 
+          y0.num_ruc as num_ruc_trab,
+          y0.num_doc as num_ruc_empl,
+          y0.periodo as per_dif 
   FROM
   (
-    SELECT num_ruc,ind_presdj,num_doc,periodo 
+    SELECT num_ruc,num_doc,periodo 
     FROM ${BD_STG}.tmp093168_kpigr05_detcntperfv
     EXCEPT ALL
-    SELECT num_ruc,ind_presdj,num_doc,num_perservicio
+    SELECT num_ruc,num_doc,num_perservicio
     FROM ${BD_STG}.tmp093168_kpigr05_detcntpermdb
   ) y0;
 
@@ -411,6 +411,20 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr05_cndestino2 AS
 
 
 /********************************************************************************/
+
+
+DROP TABLE ${BD_STG}.tmp093168_udjkpigr5;
+DROP TABLE ${BD_STG}.tmp093168_kpigr5_periodos_ctaind;
+DROP TABLE ${BD_STG}.tmp093168_kpigr05_detcnt_tr;
+
+DROP TABLE ${BD_STG}.tmp093168_kpigr05_detcntpertr;
+DROP TABLE ${BD_STG}.tmp093168_kpigr05_detcntperfv;
+DROP TABLE ${BD_STG}.tmp093168_kpigr05_detcntpermdb;
+
+DROP TABLE ${BD_STG}.tmp093168_kpigr05_cnorigen;
+DROP TABLE ${BD_STG}.tmp093168_kpigr05_cndestino1;
+DROP TABLE ${BD_STG}.tmp093168_kpigr05_cndestino2;
+
 
 SEL CURRENT_TIMESTAMP;
 

@@ -497,6 +497,20 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpi02_cndestino2 AS
 
 /********************************************************************************/
 
+	DROP TABLE ${BD_STG}.tmp093168_cantrecibos;
+	DROP TABLE ${BD_STG}.tmp093168_cantnotascredito;
+	DROP TABLE ${BD_STG}.tmp093168_udjkpi1;
+	DROP TABLE ${BD_STG}.tmp093168_cantrecibosf616;
+	DROP TABLE ${BD_STG}.tmp093168_cantnotcredtf616;
+	DROP TABLE ${BD_STG}.tmp093168_detcantrxhe;
+	DROP TABLE ${BD_STG}.tmp093168_kpiperindj;
+	DROP TABLE ${BD_STG}.tmp093168_detcantrxhetr;
+	DROP TABLE ${BD_STG}.tmp093168_detcantrxhefv;
+	DROP TABLE ${BD_STG}.tmp093168_detcantrxhemdb;
+	DROP TABLE ${BD_STG}.tmp093168_kpi01_cnorigen;
+	DROP TABLE ${BD_STG}.tmp093168_kpi01_cndestino1;
+	DROP TABLE ${BD_STG}.tmp093168_kpi02_cndestino2;  
+
 
 SEL CURRENT_TIMESTAMP;
 
