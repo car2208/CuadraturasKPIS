@@ -8,8 +8,8 @@
 ### $5 : Base de datos Teradata - Staging
 ### $6 : Ruta Log TERADATA
 ### $7: Periodo :${PERIODO}
-##  sh /work1/teradata/shells/093168/J093168_KPIGRP04.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022 2023-01-31
-##  sh /work1/teradata/shells/093168/J093168_KPIGRP04.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD /work1/teradata/log/093168 2022 2023-01-31
+##  sh /work1/teradata/shells/093168/J093168_KPIGRP05.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022 2023-01-31
+##  sh /work1/teradata/shells/093168/J093168_KPIGRP05.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD /work1/teradata/log/093168 2022 2023-01-31
 
 ################################################################################
 
@@ -314,7 +314,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr05_cndestino2 AS
     (
       SELECT
              x0.ind_presdj,
-             x0.cant_per_origen as cant_origen,
+             case when x0.ind_presdj=0 then (select sum(cant_per_origen) from ${BD_STG}.tmp093168_kpigr05_cnorigen) else 0 end as cant_origen,
              coalesce(x1.cant_per_destino1,0) as cant_destino
       FROM ${BD_STG}.tmp093168_kpigr05_cnorigen x0
       LEFT JOIN ${BD_STG}.tmp093168_kpigr05_cndestino1 x1 
@@ -344,7 +344,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr05_cndestino2 AS
     (
       SELECT x0.ind_presdj,
              x0.cant_per_destino1 AS cant_origen,
-             coalesce(x1.cant_per_destino2,0) AS cant_destino
+             case when x0.ind_presdj=0  then (select sum(cant_per_destino2) from ${BD_STG}.tmp093168_kpigr05_cndestino2) else 0 end AS cant_destino
       FROM ${BD_STG}.tmp093168_kpigr05_cndestino1 x0
       LEFT JOIN ${BD_STG}.tmp093168_kpigr05_cndestino2 x1 
       ON x0.ind_presdj=x1.ind_presdj
@@ -382,7 +382,9 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr05_cndestino2 AS
   ) y1 
   ON y0.num_ruc=y1.num_ruc 
   AND y0.num_docide_empl=y1.num_docide_empl
-  AND SUBSTR(y0.per_aporta,5,2)||SUBSTR(y0.per_aporta,1,4)=y1.per_aporta;
+  AND SUBSTR(y0.per_aporta,5,2)||SUBSTR(y0.per_aporta,1,4)=y1.per_aporta
+  ORDER BY y0.num_ruc,y0.per_aporta
+  ;
   
   .IF ERRORCODE <> 0 THEN .GOTO error_shell;
   
@@ -402,7 +404,9 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr05_cndestino2 AS
     EXCEPT ALL
     SELECT num_ruc,num_doc,num_perservicio
     FROM ${BD_STG}.tmp093168_kpigr05_detcntpermdb
-  ) y0;
+  ) y0
+  ORDER BY y0.num_ruc,y0.periodo
+  ;
 
   .IF ERRORCODE <> 0 THEN .GOTO error_shell;
 

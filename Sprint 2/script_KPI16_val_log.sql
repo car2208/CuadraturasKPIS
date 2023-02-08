@@ -147,7 +147,7 @@ WHERE COD_KPI='K016012022'  AND FEC_CARGA=CURRENT_DATE;
   (
    SELECT
           x0.ind_presdj,
-          x0.cant_comp_origen as cant_origen,
+          case when x0.ind_presdj=0 then (select sum(cant_comp_origen) from bddwestg.tmp093168_kpigr16_val_cnorigen) else 0 end as cant_origen,
           coalesce(x1.cant_comp_destino1,0) as cant_destino
    FROM bddwestg.tmp093168_kpigr16_val_cnorigen x0
    LEFT JOIN bddwestg.tmp093168_kpigr16_val_cndestino1 x1 
@@ -170,7 +170,7 @@ WHERE COD_KPI='K016022022'  AND FEC_CARGA=CURRENT_DATE;
   (
    SELECT x0.ind_presdj,
           x0.cant_comp_destino1 AS cant_origen,
-          coalesce(x1.cant_comp_destino2,0) AS cant_destino
+          case when x0.ind_presdj=0  then (select sum(cant_comp_destino2) from bddwestg.tmp093168_kpigr16_val_cndestino2) else 0 end AS cant_destino
    FROM bddwestg.tmp093168_kpigr16_val_cndestino1 x0
    LEFT JOIN bddwestg.tmp093168_kpigr16_val_cndestino2 x1 
    ON x0.ind_presdj=x1.ind_presdj
@@ -186,10 +186,8 @@ WHERE COD_KPI='K016022022'  AND FEC_CARGA=CURRENT_DATE;
 
     CREATE MULTISET TABLE bddwestg.tmp093168_dif_K016012022 AS (
      SELECT DISTINCT 
-   'K016012022' cod_kpi,
    ann_ejercicio,
-   num_ruc,
-   ind_presdj,
+   num_ruc as num_ruc_trab,
    num_ruc_emisor,
    cod_tip_doc,
    ser_doc,
@@ -197,7 +195,6 @@ WHERE COD_KPI='K016022022'  AND FEC_CARGA=CURRENT_DATE;
  FROM (
   SELECT   ann_ejercicio,
      num_ruc,
-     ind_presdj,
      num_ruc_emisor,
      cod_tip_doc,
      ser_doc,
@@ -206,7 +203,6 @@ WHERE COD_KPI='K016022022'  AND FEC_CARGA=CURRENT_DATE;
   EXCEPT ALL
   SELECT  ann_ejercicio,
    num_ruc,
-   ind_presdj,
    num_doc_emisor,
    cod_tip_comprob,
    num_serie,
@@ -220,11 +216,9 @@ WHERE COD_KPI='K016022022'  AND FEC_CARGA=CURRENT_DATE;
 
  CREATE MULTISET TABLE bddwestg.tmp093168_dif_K016022022 AS (
  SELECT DISTINCT 
-   'K016022022' cod_kpi,
    ann_ejercicio,
-   num_ruc,
-   ind_presdj,
-   num_doc_emisor,
+   num_ruc as num_ruc_trab,
+   num_doc_emisor as num_ruc_emisor,
    cod_tip_comprob,
    num_serie,
    num_comprob
@@ -232,7 +226,6 @@ WHERE COD_KPI='K016022022'  AND FEC_CARGA=CURRENT_DATE;
  FROM (
      SELECT  ann_ejercicio,
    num_ruc,
-   ind_presdj,
    num_doc_emisor,
    cod_tip_comprob,
    num_serie,
@@ -241,7 +234,6 @@ WHERE COD_KPI='K016022022'  AND FEC_CARGA=CURRENT_DATE;
   EXCEPT ALL
   SELECT  ann_ejercicio,
    num_ruc,
-   ind_presdj,
    num_doc_emisor,
    cod_tip_comprob,
    num_serie,
@@ -254,8 +246,10 @@ WHERE COD_KPI='K016022022'  AND FEC_CARGA=CURRENT_DATE;
 /****************Archivo de diferencias********************/
 
  LOCK ROW FOR ACCESS
- SELECT * FROM bddwestg.tmp093168_dif_K016012022 ;
+ SELECT * FROM bddwestg.tmp093168_dif_K016012022 
+ ORDER BY num_ruc_trab,num_ruc_emisor;
 
     LOCK ROW FOR ACCESS
- SELECT * FROM bddwestg.tmp093168_dif_K016022022;
+ SELECT * FROM bddwestg.tmp093168_dif_K016022022 
+ ORDER BY num_ruc_trab,num_ruc_emisor;
 

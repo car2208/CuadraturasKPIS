@@ -131,7 +131,7 @@ WHERE COD_KPI='K017012022'  AND FEC_CARGA=CURRENT_DATE;
   (
    SELECT
           x0.ind_presdj,
-          x0.mto_deduc_origen as mto_origen,
+         case when x0.ind_presdj=0 then (select sum(mto_deduc_origen) from BDDWESTG.tmp093168_kpigr17_cnorigen) else 0 end as mto_origen,
           coalesce(x1.mto_deduc_destino1,0) as mto_destino
    FROM BDDWESTG.tmp093168_kpigr17_cnorigen x0
    LEFT JOIN BDDWESTG.tmp093168_kpigr17_cndestino1 x1 
@@ -155,7 +155,7 @@ WHERE COD_KPI='K017022022'  AND FEC_CARGA=CURRENT_DATE;
   (
    SELECT x0.ind_presdj,
           x0.mto_deduc_destino1 AS mto_origen,
-          coalesce(x1.mto_deduc_destino2,0) AS mto_destino
+          case when x0.ind_presdj=0  then (select sum(mto_deduc_destino2) from BDDWESTG.tmp093168_kpigr17_cndestino2) else 0 end AS mto_destino
    FROM BDDWESTG.tmp093168_kpigr17_cndestino1 x0
    LEFT JOIN BDDWESTG.tmp093168_kpigr17_cndestino2 x1 
    ON x0.ind_presdj=x1.ind_presdj
@@ -171,10 +171,8 @@ WHERE COD_KPI='K017022022'  AND FEC_CARGA=CURRENT_DATE;
 
 CREATE MULTISET TABLE BDDWESTG.tmp093168_dif_K017012022 AS (
      SELECT DISTINCT 
-   'K017012022' cod_kpi,
    y0.ann_ejercicio,
-   y0.num_ruc,
-   y0.ind_presdj,
+   y0.num_ruc as num_ruc_trab,
    y0.num_ruc_emisor,
    y0.cod_tip_doc,
    y0.ser_doc,
@@ -184,7 +182,6 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_dif_K017012022 AS (
  FROM (
   SELECT   ann_ejercicio,
      num_ruc,
-     ind_presdj,
      num_ruc_emisor,
      cod_tip_doc,
      ser_doc,
@@ -194,7 +191,6 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_dif_K017012022 AS (
   EXCEPT ALL
   SELECT  ann_ejercicio,
    num_ruc,
-   ind_presdj,
    num_doc_emisor,
    cod_tip_comprob,
    num_serie,
@@ -207,11 +203,9 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_dif_K017012022 AS (
 
  CREATE MULTISET TABLE BDDWESTG.tmp093168_dif_K017022022 AS (
  SELECT DISTINCT 
-   'K017022022' cod_kpi,
    y0.ann_ejercicio,
-   y0.num_ruc,
-   y0.ind_presdj,
-   y0.num_doc_emisor,
+   y0.num_ruc as num_ruc_trab,
+   y0.num_doc_emisor as num_ruc_emisor,
    y0.cod_tip_comprob,
    y0.num_serie,
    y0.num_comprob,
@@ -220,7 +214,6 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_dif_K017012022 AS (
  FROM (
      SELECT  ann_ejercicio,
    num_ruc,
-   ind_presdj,
    num_doc_emisor,
    cod_tip_comprob,
    num_serie,
@@ -230,7 +223,6 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_dif_K017012022 AS (
   EXCEPT ALL
   SELECT  ann_ejercicio,
    num_ruc,
-   ind_presdj,
    num_doc_emisor,
    cod_tip_comprob,
    num_serie,
@@ -243,9 +235,9 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_dif_K017012022 AS (
 /****************************************************/
 
 LOCK ROW FOR ACCESS
-SELECT * FROM BDDWESTG.tmp093168_dif_K017012022 ;
+SELECT * FROM BDDWESTG.tmp093168_dif_K017012022 ORDER BY num_ruc_trab,num_ruc_emisor;
 
 LOCK ROW FOR ACCESS
-SELECT * FROM BDDWESTG.tmp093168_dif_K017022022;
+SELECT * FROM BDDWESTG.tmp093168_dif_K017022022 ORDER BY num_ruc_trab,num_ruc_emisor;
 
 /***************************************************/

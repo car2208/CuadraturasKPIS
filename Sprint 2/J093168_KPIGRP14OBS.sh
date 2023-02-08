@@ -35,9 +35,8 @@ FILELOG=${path_log_TD}'/'${NOMBREBASE}'.log'
 FILEERR=${path_log_TD}'/'${NOMBREBASE}'.err'
 KPI_01='K014032022'
 KPI_02='K014042022'
-FILE_KPI01='/work1/teradata/dat/093168/DIFF_'${KPI_01}'_'${DATE}'.unl'
-FILE_KPI02='/work1/teradata/dat/093168/DIFF_'${KPI_02}'_'${DATE}'.unl'
-
+FILE_KPI01='/work1/teradata/dat/093168/DIF_'${KPI_01}'_CAS514_TRANVSFVIR_'${DATE}'.unl'
+FILE_KPI02='/work1/teradata/dat/093168/DIF_'${KPI_02}'_CAS514_FVIRVSMODB_'${DATE}'.unl'
 
 rm -f ${FILE_KPI01}
 rm -f ${FILE_KPI02}
@@ -246,7 +245,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr14_obs_cndestino2 AS
 		(
 			SELECT 
 			       x0.ind_presdj,
-			       x0.cant_comp_origen as cant_origen,
+			       case when x0.ind_presdj=0 then (select sum(cant_comp_origen) from ${BD_STG}.tmp093168_kpigr14_obs_cnorigen) else 0 end as cant_origen,
 			       coalesce(x1.cant_comp_destino1,0) as cant_destino
 			FROM ${BD_STG}.tmp093168_kpigr14_obs_cnorigen x0
 			LEFT JOIN ${BD_STG}.tmp093168_kpigr14_obs_cndestino1 x1 
@@ -275,7 +274,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr14_obs_cndestino2 AS
 		(
 			SELECT x0.ind_presdj,
 			       x0.cant_comp_destino1 AS cant_origen,
-			       coalesce(x1.cant_comp_destino2,0) AS cant_destino
+				   case when x0.ind_presdj=0  then (select sum(cant_comp_destino2) from ${BD_STG}.tmp093168_kpigr14_obs_cndestino2) else 0 end AS cant_destino
 			FROM ${BD_STG}.tmp093168_kpigr14_obs_cndestino1 x0
 			LEFT JOIN ${BD_STG}.tmp093168_kpigr14_obs_cndestino2 x1 
 			ON x0.ind_presdj=x1.ind_presdj
@@ -300,10 +299,8 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_01}	;
 
     CREATE MULTISET TABLE ${BD_STG}.tmp093168_dif_${KPI_01} AS (
      SELECT DISTINCT 
-			'${KPI_01}' cod_kpi,
 			y0.ann_ejercicio,
-			y0.num_ruc,
-			y0.ind_presdj,
+			y0.num_ruc as num_ruc_trab,
 			y0.num_ruc_emisor,
 			y0.cod_tip_doc,
 			y0.ser_doc,
@@ -313,7 +310,6 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_01}	;
 	FROM (
 		SELECT 		ann_ejercicio,
 					num_ruc,
-					ind_presdj,
 					num_ruc_emisor,
 					cod_tip_doc,
 					ser_doc,
@@ -322,7 +318,6 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_01}	;
 		EXCEPT ALL
 		SELECT  ann_ejercicio,
 			num_ruc,
-			ind_presdj,
 			num_doc_emisor,
 			cod_tip_comprob,
 			num_serie,
@@ -336,7 +331,8 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_01}	;
 	.EXPORT FILE ${FILE_KPI01};
 
 	LOCK ROW FOR ACCESS
-	SELECT * FROM ${BD_STG}.tmp093168_dif_${KPI_01} ;
+	SELECT * FROM ${BD_STG}.tmp093168_dif_${KPI_01}
+	ORDER BY num_ruc_trab,num_ruc_emisor;
 
 	.IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
@@ -353,11 +349,9 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02}	;
 
 	CREATE MULTISET TABLE ${BD_STG}.tmp093168_dif_${KPI_02} AS (
 	SELECT DISTINCT 
-			'${KPI_02}' cod_kpi,
 			y0.ann_ejercicio,
-			y0.num_ruc,
-			y0.ind_presdj,
-			y0.num_doc_emisor,
+			y0.num_ruc AS num_ruc_trab,
+			y0.num_doc_emisor AS num_ruc_emisor,
 			y0.cod_tip_comprob,
 			y0.num_serie,
 			y0.num_comprob
@@ -365,7 +359,6 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02}	;
 	FROM (
 	    SELECT  ann_ejercicio,
 			num_ruc,
-			ind_presdj,
 			num_doc_emisor,
 			cod_tip_comprob,
 			num_serie,
@@ -374,7 +367,6 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02}	;
 		EXCEPT ALL
 		SELECT  ann_ejercicio,
 			num_ruc,
-			ind_presdj,
 			num_doc_emisor,
 			cod_tip_comprob,
 			num_serie,
@@ -388,7 +380,8 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02}	;
 	.EXPORT FILE ${FILE_KPI02};
 
     LOCK ROW FOR ACCESS
-	SELECT * FROM ${BD_STG}.tmp093168_dif_${KPI_02};
+	SELECT * FROM ${BD_STG}.tmp093168_dif_${KPI_02}
+	ORDER BY num_ruc_trab,num_ruc_emisor;
 
 	.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 

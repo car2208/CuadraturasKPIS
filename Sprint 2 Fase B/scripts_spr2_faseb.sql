@@ -1,3 +1,10 @@
+
+Servidor: Infp09s2
+Online: r0_bancos
+BD: recauda
+Tablas: ddp, t5667acteco
+
+
 /***********************************************************************************************/
 --Cantidad Total de Contribuyentes
 
