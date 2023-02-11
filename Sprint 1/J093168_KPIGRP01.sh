@@ -526,8 +526,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpi02_cndestino2 AS
 	DROP TABLE ${BD_STG}.tmp093168_detcantrxhemdb;
 	DROP TABLE ${BD_STG}.tmp093168_kpi01_cnorigen;
 	DROP TABLE ${BD_STG}.tmp093168_kpi01_cndestino1;
-	DROP TABLE ${BD_STG}.tmp093168_kpi02_cndestino2;  
-
+	DROP TABLE ${BD_STG}.tmp093168_kpi02_cndestino2;
 
 SEL CURRENT_TIMESTAMP;
 

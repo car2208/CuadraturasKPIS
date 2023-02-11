@@ -256,13 +256,12 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr26_val_cndestino2 AS
 				from
 					(
 						select * from ${BD_STG}.tmp093168_kpigr26_val_cnorigen
-						union all select 1,0 from (select '1' agr1) a
-						union all select 0,0 from (select '0' agr0) b
+						union all select 1,0,0 from (select '1' agr1) a
+						union all select 0,0,0 from (select '0' agr0) b
 					) y group by 1
 			) x0
 			LEFT JOIN ${BD_STG}.tmp093168_kpigr26_val_cndestino1 x1 
 			ON x0.ind_presdj=x1.ind_presdj
-			WHERE cant_origen<>0 and cant_destino<>0
 
 		) z
 	GROUP BY 1,2,3,4
@@ -293,13 +292,12 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr26_val_cndestino2 AS
 				from
 					(
 						select * from ${BD_STG}.tmp093168_kpigr26_val_cndestino1
-						union all select 1,0 from (select '1' agr1) a
-						union all select 0,0 from (select '0' agr0) b
+						union all select 1,0,0 from (select '1' agr1) a
+						union all select 0,0,0 from (select '0' agr0) b
 					) y group by 1
 			) x0
 			LEFT JOIN ${BD_STG}.tmp093168_kpigr26_val_cndestino2 x1 
 			ON x0.ind_presdj=x1.ind_presdj
-			WHERE cant_origen<>0 and cant_destino<>0
 		) z
 	GROUP BY 1,2,3,4
 	;
@@ -332,14 +330,13 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr26_val_cndestino2 AS
 					from
 					(
 						select * from ${BD_STG}.tmp093168_kpigr26_val_cnorigen
-						union all select 1,0 from (select '1' agr1) a
-						union all select 0,0 from (select '0' agr0) b
+						union all select 1,0,0 from (select '1' agr1) a
+						union all select 0,0,0 from (select '0' agr0) b
 					) y group by 1
 
 			) x0
 			LEFT JOIN ${BD_STG}.tmp093168_kpigr26_val_cndestino1 x1 
 			ON x0.ind_presdj=x1.ind_presdj
-			WHERE mto_origen<>0  and mto_destino<>0
 		) z
 	GROUP BY 1,2,3,4
 	;
@@ -369,8 +366,8 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr26_val_cndestino2 AS
 					from
 					(
 						select * from ${BD_STG}.tmp093168_kpigr26_val_cndestino1
-						union all select 1,0 from (select '1' agr1) a
-						union all select 0,0 from (select '0' agr0) b
+						union all select 1,0,0 from (select '1' agr1) a
+						union all select 0,0,0 from (select '0' agr0) b
 					) y group by 1
 			) x0
 			LEFT JOIN ${BD_STG}.tmp093168_kpigr26_val_cndestino2 x1 
