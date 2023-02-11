@@ -253,9 +253,18 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr16_val_cndestino2 AS
 		(
 			SELECT
 			       x0.ind_presdj,
-				   case when x0.ind_presdj=0 then (select sum(cant_comp_origen) from ${BD_STG}.tmp093168_kpigr16_val_cnorigen) else 0 end as cant_origen,
+				   case when x0.ind_presdj=0 then (select coalesce(sum(cant_comp_origen),0) from ${BD_STG}.tmp093168_kpigr16_val_cnorigen) else 0 end as cant_origen,
 			       coalesce(x1.cant_comp_destino1,0) as cant_destino
-			FROM ${BD_STG}.tmp093168_kpigr16_val_cnorigen x0
+			FROM 
+			(
+				select y.ind_presdj,SUM(y.cant_comp_origen) as cant_comp_origen
+					from
+					(
+						select * from ${BD_STG}.tmp093168_kpigr16_val_cnorigen
+						union all select 1,0 from (select '1' agr1) a
+						union all select 0,0 from (select '0' agr0) b
+					) y group by 1
+			) x0
 			LEFT JOIN ${BD_STG}.tmp093168_kpigr16_val_cndestino1 x1 
 			ON x0.ind_presdj=x1.ind_presdj
 		) z
@@ -281,7 +290,16 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr16_val_cndestino2 AS
 			SELECT x0.ind_presdj,
 			       x0.cant_comp_destino1 AS cant_origen,
 			        case when x0.ind_presdj=0  then (select sum(cant_comp_destino2) from ${BD_STG}.tmp093168_kpigr16_val_cndestino2) else 0 end AS cant_destino
-			FROM ${BD_STG}.tmp093168_kpigr16_val_cndestino1 x0
+			FROM 
+			(
+					select y.ind_presdj,SUM(y.cant_comp_destino1) as cant_comp_destino1
+					from
+					(
+						select * from ${BD_STG}.tmp093168_kpigr16_val_cndestino1
+						union all select 1,0 from (select '1' agr1) a
+						union all select 0,0 from (select '0' agr0) b
+					) y group by 1
+			) x0
 			LEFT JOIN ${BD_STG}.tmp093168_kpigr16_val_cndestino2 x1 
 			ON x0.ind_presdj=x1.ind_presdj
 		) z

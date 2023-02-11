@@ -211,7 +211,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr3_periodos_f0616 as
   AND x1.t03nabono = x0.num_paq
   AND x1.t03formulario = x0.formulario 
   AND x1.t03norden = x0.norden
-  AND LENGTH(x0.num_docide_ret) = '11'
+  AND LENGTH(TRIM(x0.num_docide_ret)) = '11'
 ) WITH DATA NO PRIMARY INDEX;
 ;
 
@@ -404,9 +404,20 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr03_cndestino2 AS
     (
       SELECT
              x0.ind_presdj,
-             case when x0.ind_presdj=0 then (select sum(cant_per_origen) from ${BD_STG}.tmp093168_kpigr03_cnorigen) else 0 end as cant_origen,
+             case when x0.ind_presdj=0 then 
+                      (select coalesce(sum(cant_per_origen),0) from ${BD_STG}.tmp093168_kpigr03_cnorigen) 
+            else 0 end as cant_origen,
              coalesce(x1.cant_per_destino1,0) as cant_destino
-      FROM ${BD_STG}.tmp093168_kpigr03_cnorigen x0
+      FROM 
+      (
+          select y.ind_presdj,SUM(y.cant_per_origen) as cant_per_origen
+          from
+          (
+            select * from ${BD_STG}.tmp093168_kpigr03_cnorigen
+            union all select 1,0 from (select '1' agr1) a
+            union all select 0,0 from (select '0' agr0) b
+          ) y group by 1
+      )  x0
       LEFT JOIN ${BD_STG}.tmp093168_kpigr03_cndestino1 x1 
       ON x0.ind_presdj=x1.ind_presdj
     ) z
@@ -432,8 +443,19 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr03_cndestino2 AS
     (
       SELECT x0.ind_presdj,
              x0.cant_per_destino1 AS cant_origen,
-             case when x0.ind_presdj=0  then (select sum(cant_per_destino2) from ${BD_STG}.tmp093168_kpigr03_cndestino2) else 0 end AS cant_destino
-      FROM ${BD_STG}.tmp093168_kpigr03_cndestino1 x0
+             case when x0.ind_presdj=0  then 
+                      (select coalesce(sum(cant_per_destino2),0) from ${BD_STG}.tmp093168_kpigr03_cndestino2)
+             else 0 end AS cant_destino
+      FROM 
+      (
+        select y.ind_presdj,SUM(y.cant_per_destino1) as cant_per_destino1
+          from
+          (
+            select * from ${BD_STG}.tmp093168_kpigr03_cndestino1
+            union all select 1,0 from (select '1' agr1) a
+            union all select 0,0 from (select '0' agr0) b
+          ) y group by 1
+      ) x0
       LEFT JOIN ${BD_STG}.tmp093168_kpigr03_cndestino2 x1 
       ON x0.ind_presdj=x1.ind_presdj
     ) z
@@ -515,8 +537,8 @@ DROP TABLE ${BD_STG}.tmp093168_kpigr03_detcntpermdb;
 DROP TABLE ${BD_STG}.tmp093168_kpigr03_cnorigen;
 DROP TABLE ${BD_STG}.tmp093168_kpigr03_cndestino1;
 DROP TABLE ${BD_STG}.tmp093168_kpigr03_cndestino2 ;
-SEL CURRENT_TIMESTAMP;
 
+SEL CURRENT_TIMESTAMP;
     
 LOGOFF;
 QUIT 0;

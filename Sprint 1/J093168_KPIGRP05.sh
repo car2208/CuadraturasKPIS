@@ -207,7 +207,7 @@ AS(
           x0.num_doc,
           x0.periodo
   FROM ${BD_STG}.t5377cas111 x0
-  LEFT JOIN ${BD_STG}.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
+  INNER JOIN ${BD_STG}.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
   WHERE x0.tip_doc = '06'
   AND x0.periodo='13${PERIODO}'
 ) WITH DATA NO PRIMARY INDEX ; 
@@ -228,7 +228,7 @@ AS(
   SELECT DISTINCT x1.num_ruc,COALESCE(x1.ind_presdj,0) as ind_presdj,
           x0.num_doc, x0.num_perservicio
   FROM ${BD_STG}.T5377CAS111_MONGODB x0
-  LEFT JOIN ${BD_STG}.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
+  INNER JOIN ${BD_STG}.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
   WHERE x0.COD_TIPDOC ='06'
   AND x0.num_perservicio='13${PERIODO}'
 ) WITH DATA NO PRIMARY INDEX; 
@@ -314,9 +314,18 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr05_cndestino2 AS
     (
       SELECT
              x0.ind_presdj,
-             case when x0.ind_presdj=0 then (select sum(cant_per_origen) from ${BD_STG}.tmp093168_kpigr05_cnorigen) else 0 end as cant_origen,
+             case when x0.ind_presdj=0 then (select coalesce(sum(cant_per_origen),0) from ${BD_STG}.tmp093168_kpigr05_cnorigen) else 0 end as cant_origen,
              coalesce(x1.cant_per_destino1,0) as cant_destino
-      FROM ${BD_STG}.tmp093168_kpigr05_cnorigen x0
+      FROM 
+      (
+          select y.ind_presdj,SUM(y.cant_per_origen) as cant_per_origen
+          from
+          (
+            select * from ${BD_STG}.tmp093168_kpigr05_cnorigen
+            union all select 1,0 from (select '1' agr1) a
+            union all select 0,0 from (select '0' agr0) b
+          ) y group by 1
+      ) x0
       LEFT JOIN ${BD_STG}.tmp093168_kpigr05_cndestino1 x1 
       ON x0.ind_presdj=x1.ind_presdj
     ) z
@@ -344,8 +353,17 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr05_cndestino2 AS
     (
       SELECT x0.ind_presdj,
              x0.cant_per_destino1 AS cant_origen,
-             case when x0.ind_presdj=0  then (select sum(cant_per_destino2) from ${BD_STG}.tmp093168_kpigr05_cndestino2) else 0 end AS cant_destino
-      FROM ${BD_STG}.tmp093168_kpigr05_cndestino1 x0
+             case when x0.ind_presdj=0  then (select coalesce(sum(cant_per_destino2),0) from ${BD_STG}.tmp093168_kpigr05_cndestino2) else 0 end AS cant_destino
+      FROM 
+      (
+          select y.ind_presdj,SUM(y.cant_per_destino1) as cant_per_destino1
+          from
+          (
+            select * from ${BD_STG}.tmp093168_kpigr05_cndestino1
+            union all select 1,0 from (select '1' agr1) a
+            union all select 0,0 from (select '0' agr0) b
+          ) y group by 1
+      ) x0
       LEFT JOIN ${BD_STG}.tmp093168_kpigr05_cndestino2 x1 
       ON x0.ind_presdj=x1.ind_presdj
     ) z

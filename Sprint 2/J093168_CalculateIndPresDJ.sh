@@ -8,13 +8,14 @@
 ### $5 : Base de datos Teradata - Staging
 ### $6 : Ruta Log TERADATA
 ### $7 : Periodo :2022
+### $8 : Fecha de corte
 
-##sh /work1/teradata/shells/093168/J093168_CalculateIndPresDJ.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022
-##sh /work1/teradata/shells/093168/J093168_CalculateIndPresDJ.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD /work1/teradata/log/093168 2022
+##sh /work1/teradata/shells/093168/J093168_CalculateIndPresDJ.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022 2023-02-08
+##sh /work1/teradata/shells/093168/J093168_CalculateIndPresDJ.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD /work1/teradata/log/093168 2022 2023-02-08
 ################################################################################
 
 
-if [ $# -ne 7 ]; then echo 'Numero incorrecto de Parametros'; exit 1; fi
+if [ $# -ne 8 ]; then echo 'Numero incorrecto de Parametros'; exit 1; fi
 
 
 ### PARAMETROS
@@ -25,6 +26,7 @@ BD_DQ=${4}
 BD_STG=${5}
 path_log_TD=${6}
 PERIODO=${7}
+FECHA_CORTE=${8}
 
 MY_DIR=`dirname $0`
 NOMBREBASE=`basename ${0} .sh`
@@ -66,6 +68,7 @@ AND num_formul = '0709'
 AND ind_actual = '1' 
 AND ind_estado = '0' 
 AND ind_proceso = '1'
+AND cast(fec_creacion as date) <= CAST('${FECHA_CORTE}' AS DATE FORMAT 'YYYY-MM-DD')
 GROUP BY 1
 ) with data no primary INDEX ON COMMIT PRESERVE ROWS
 ;
@@ -81,6 +84,7 @@ FROM ${BD_STG}.t5847ctldecl
 WHERE num_ejercicio = ${PERIODO}
 AND num_formul = '0709' 
 AND ind_estado = '2'
+AND cast(fec_creacion as date) <= CAST('${FECHA_CORTE}' AS DATE FORMAT 'YYYY-MM-DD')
 GROUP BY 1
 )  with data no primary INDEX ON COMMIT PRESERVE ROWS
 ;

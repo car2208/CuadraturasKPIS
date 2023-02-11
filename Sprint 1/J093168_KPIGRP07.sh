@@ -1,6 +1,6 @@
 #### Se ejecuta desde jobs DataStage  v27012023
 #### ---------------------------------------------------------------------------
-#### KPI07 Casilla 128 – Pagos directos de Quinta Categoría Pagos directos
+#### KPI07 Casilla 128 ï¿½ Pagos directos de Quinta Categorï¿½a Pagos directos
 #### Cuadratura : Cantidad de periodos declarados
 #### Documento de cuadratura : V16 
 ## Parametros: 
@@ -12,11 +12,12 @@
 ### $6 : Ruta Log TERADATA
 ### $7 : Periodo :2022
 ### $8 : Fecha Pago Maxima : 31/01/2022
-### sh /work1/teradata/shells/093168/J093168_KPIGRP07.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD /work1/teradata/log/093168 2022 2023-01-31
-### sh /work1/teradata/shells/093168/J093168_KPIGRP07.sh TDSUNAT usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022 2023-01-31
+### $9 : Fecha de corte fv y mdb
+### sh /work1/teradata/shells/093168/J093168_KPIGRP07.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD /work1/teradata/log/093168 2022 2023-01-31 2023-02-08
+### sh /work1/teradata/shells/093168/J093168_KPIGRP07.sh TDSUNAT usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022 2023-01-31 2023-02-08
 ################################################################################
 
-if [ $# -ne 8 ]; then echo 'Numero incorrecto de Parametros'; exit 1; fi
+if [ $# -ne 9 ]; then echo 'Numero incorrecto de Parametros'; exit 1; fi
 
 
 ### PARAMETROS
@@ -28,6 +29,7 @@ BD_STG=${5}
 path_log_TD=${6}
 PERIODO=${7}
 FCH_PAGO=${8}
+FECHA_CORTE=${9}
 
 CADENA_PERIODO=${PERIODO}01,${PERIODO}02,${PERIODO}03,${PERIODO}04,${PERIODO}05,${PERIODO}06,${PERIODO}07,${PERIODO}08,${PERIODO}09,${PERIODO}10,${PERIODO}11,${PERIODO}12
 
@@ -163,7 +165,7 @@ SEL CURRENT_TIMESTAMP;
 				
 		.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
--- Exclusiones Pago en Proceso de compensación
+-- Exclusiones Pago en Proceso de compensaciï¿½n
 
 
 		SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'TMP_KPI07_SIRATPRICO_1651';
@@ -216,7 +218,7 @@ SEL CURRENT_TIMESTAMP;
 		
 		.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 		
---Exclusiones Pago en Proceso de devolución
+--Exclusiones Pago en Proceso de devoluciï¿½n
 
 		SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'TMP_KPI07_SIRATPRICO_tdev';
 		.IF activitycount = 0 THEN .GOTO ok 
@@ -251,7 +253,7 @@ SEL CURRENT_TIMESTAMP;
 
 			.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
---Exclusiones Pago en Proceso de reimputación
+--Exclusiones Pago en Proceso de reimputaciï¿½n
 
 		SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'TMP_KPI07_SIRATPRICO_treimp';
 		.IF activitycount = 0 THEN .GOTO ok 
@@ -428,7 +430,7 @@ SEL CURRENT_TIMESTAMP;
 					.IF ERRORCODE <> 0 THEN .GOTO error_shell; 		
 
 
-			--Exclusiones Pago en Proceso de devolución
+			--Exclusiones Pago en Proceso de devoluciï¿½n
 
 			
 					SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'TMP_KPI07_SIRATMEPECO_tdev';
@@ -466,7 +468,7 @@ SEL CURRENT_TIMESTAMP;
 
 					.IF ERRORCODE <> 0 THEN .GOTO error_shell; 					
 					
-			--Exclusiones Pago en Proceso de reimputación
+			--Exclusiones Pago en Proceso de reimputaciï¿½n
 
 
 					SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'TMP_KPI07_SIRATMEPECO_treimp';
@@ -628,6 +630,7 @@ SEL CURRENT_TIMESTAMP;
 								AND ind_actual = '1' 
 								AND ind_estado = '0' 
 								AND ind_proceso = '1'
+								AND cast(fec_creacion as date) <= CAST('${FECHA_CORTE}' AS DATE FORMAT 'YYYY-MM-DD')
 								GROUP BY 1
 																
 																																
@@ -651,6 +654,7 @@ SEL CURRENT_TIMESTAMP;
 								WHERE num_ejercicio = ${PERIODO}
 								AND num_formul = '0709' 
 								AND ind_estado = '2'
+								AND cast(fec_creacion as date) <= CAST('${FECHA_CORTE}' AS DATE FORMAT 'YYYY-MM-DD')
 								GROUP BY 1								
 								
 					) WITH DATA NO PRIMARY INDEX ; 
@@ -682,7 +686,7 @@ SEL CURRENT_TIMESTAMP;
 		/*FIN    PASO1 ---------------------------------------------------------------------*/
 		/*INICIO PASO2 ---------------------------------------------------------------------*/
 
-					-- a.	Cuando el contribuyente aún no presentó su DDJJ Anual (crea tabla):
+					-- a.	Cuando el contribuyente aï¿½n no presentï¿½ su DDJJ Anual (crea tabla):
 
 					SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'TMP_KPI07_selecfvirtual_relacion';
 					.IF activitycount = 0 THEN .GOTO ok 
@@ -707,7 +711,7 @@ SEL CURRENT_TIMESTAMP;
 					.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
 
-					-- b.	Cuando el contribuyente ya presentó su DDJJ Anual (inserta data):
+					-- b.	Cuando el contribuyente ya presentï¿½ su DDJJ Anual (inserta data):
 					
 						INSERT INTO ${BD_STG}.TMP_KPI07_selecfvirtual_relacion
 						SELECT DISTINCT b.num_ruc,'D' as ind_declara,
@@ -730,12 +734,12 @@ SEL CURRENT_TIMESTAMP;
 /************************* INICIO TABLAS MONGODB ***************************** /
 
 		--- OBSERVACION : Para la seleccion de casos que no estan se usa la misma temporal de casos de fvirtual
-		--- Segun indicaciòn es la misma logica de seleccion
+		--- Segun indicaciï¿½n es la misma logica de seleccion
 		
 
 		/**INICIO PASO1 ---------------------------------------------------------------------**/
 
-					-- a.	Cuando el contribuyente aún no presentó su DDJJ Anual (crea tabla):
+					-- a.	Cuando el contribuyente aï¿½n no presentï¿½ su DDJJ Anual (crea tabla):
 
 					SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'TMP_KPI07_selecfvirtual_relacion_MDB';
 					.IF activitycount = 0 THEN .GOTO ok 
@@ -759,7 +763,7 @@ SEL CURRENT_TIMESTAMP;
 					.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
 
-					-- b.	Cuando el contribuyente ya presentó su DDJJ Anual (inserta data):
+					-- b.	Cuando el contribuyente ya presentï¿½ su DDJJ Anual (inserta data):
 					
 						INSERT INTO ${BD_STG}.TMP_KPI07_selecfvirtual_relacion_MDB
 						SELECT DISTINCT b.num_ruc,'D' as ind_declara

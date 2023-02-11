@@ -7,6 +7,7 @@ DROP TABLE bddwestg.tmp093168_kpigr14_obs_cndestino1;
 DROP TABLE bddwestg.tmp093168_kpigr14_obs_cndestino2;
 DROP TABLE bddwestg.tmp093168_dif_K014032022;
 DROP TABLE bddwestg.tmp093168_dif_K014042022;
+
 */
 
 

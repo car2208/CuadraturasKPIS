@@ -30,7 +30,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_udjkpigr3 as
     FROM BDDWESTG.t03djcab
     WHERE t03formulario = '0601' 
     AND t03periodo BETWEEN '202201' AND '202212'
-    AND t03f_presenta <= DATE '2100-01-01'
+    AND t03f_presenta <= DATE '2023-02-06'
     GROUP BY 1,2,3
   ) AS t1 
   INNER JOIN BDDWESTG.t03djcab t2 ON t2.t03periodo = t1.t03periodo 
@@ -70,7 +70,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr3_periodos_compag AS
   WHERE x0.per_decla BETWEEN '202201' AND '202212'
   AND x0.formulario = '0601'
   AND x0.ind_com_pag = 'D'
-  AND x0.mto_servicio IS NOT NULL
+  AND x0.mto_servicio > 0
   AND  num_rucs IS NOT NULL
 
 ) WITH DATA NO PRIMARY INDEX;
@@ -94,7 +94,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_udj_f616_kpigr3 as
   FROM BDDWESTG.t03djcab
   WHERE t03formulario = '0616' 
   AND t03periodo BETWEEN '202201' AND '202212'
-  AND t03f_presenta<= DATE '2100-01-01'
+  AND t03f_presenta<= DATE '2023-02-06'
   GROUP BY 1,2,3
   ) AS t1 
   INNER JOIN BDDWESTG.t03djcab t2 ON t2.t03periodo = t1.t03periodo 
@@ -126,7 +126,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr3_periodos_f0616 as
   AND x1.t03nabono = x0.num_paq
   AND x1.t03formulario = x0.formulario 
   AND x1.t03norden = x0.norden
-  AND LENGTH(x0.num_docide_ret) = '11'
+  AND LENGTH(TRIM(x0.num_docide_ret)) = '11'
 ) WITH DATA NO PRIMARY INDEX;
 ;
 
@@ -174,7 +174,7 @@ SELECT
         x0.per_decla
 FROM BDDWESTG.tmp093168_kpigr03_detcnt_tr x0
 LEFT JOIN BDDWESTG.tmp093168_kpiperindj x1 on x0.num_ruc=x1.num_ruc
-INNER JOIN bddwestgd.dds x2 ON x0.num_ruc=x2.dds_numruc 
+INNER JOIN bddwestg.dds x2 ON x0.num_ruc=x2.dds_numruc 
 WHERE x2.dds_domici = '1'  AND x2.dds_docide IN ('1','2','3','4','5','7','8') 
 ) WITH DATA NO PRIMARY INDEX ; 
 
@@ -257,9 +257,20 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_cndestino2 AS
     (
       SELECT
              x0.ind_presdj,
-             x0.cant_per_origen as cant_origen,
+              case when x0.ind_presdj=0 then 
+                      (select coalesce(sum(cant_per_origen),0) from BDDWESTG.tmp093168_kpigr03_cnorigen) 
+              else 0 end as cant_origen,
              coalesce(x1.cant_per_destino1,0) as cant_destino
-      FROM BDDWESTG.tmp093168_kpigr03_cnorigen x0
+      FROM (
+          select y.ind_presdj,SUM(y.cant_per_origen) as cant_per_origen
+          from
+          (
+            select * from BDDWESTG.tmp093168_kpigr03_cnorigen
+            union all select 1,0 from (select '1' agr1) a
+            union all select 0,0 from (select '0' agr0) b
+          ) y group by 1
+
+      ) x0
       LEFT JOIN BDDWESTG.tmp093168_kpigr03_cndestino1 x1 
       ON x0.ind_presdj=x1.ind_presdj
     ) z
@@ -282,8 +293,20 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_cndestino2 AS
     (
       SELECT x0.ind_presdj,
              x0.cant_per_destino1 AS cant_origen,
-             coalesce(x1.cant_per_destino2,0) AS cant_destino
-      FROM BDDWESTG.tmp093168_kpigr03_cndestino1 x0
+             case when x0.ind_presdj=0  then 
+                      (select coalesce(sum(cant_per_destino2),0) from BDDWESTG.tmp093168_kpigr03_cndestino2)
+             else 0 end AS cant_destino
+      FROM (
+          select y.ind_presdj,SUM(y.cant_per_destino1) as cant_per_destino1
+          from
+          (
+            select * from BDDWESTG.tmp093168_kpigr03_cndestino1
+            union all select 1,0 from (select '1' agr1) a
+            union all select 0,0 from (select '0' agr0) b
+          ) y group by 1
+
+
+      ) x0
       LEFT JOIN BDDWESTG.tmp093168_kpigr03_cndestino2 x1 
       ON x0.ind_presdj=x1.ind_presdj
     ) z
@@ -297,26 +320,23 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_cndestino2 AS
   AS
   (
     SELECT 
-      DISTINCT 'K003012022' as cod_kpi,
-        y0.num_ruc,
-      y0.ind_presdj,
-          y0.num_docide_empl,
+        y0.num_ruc as num_ruc_trab,
+	        y0.num_docide_empl as num_ruc_empl,
           y0.num_nabono,
           y0.cod_formul,
           y0.num_orden,
-          y0.per_decla
+          y0.per_decla as per_dif
     FROM BDDWESTG.tmp093168_kpigr03_detcntpertr y0
     INNER JOIN
     (
-      SELECT DISTINCT num_ruc,ind_presdj,num_docide_empl,
+      SELECT DISTINCT num_ruc,num_docide_empl,
                       SUBSTR(per_decla,5,2)||SUBSTR(per_decla,1,4) as per_decla
       FROM BDDWESTG.tmp093168_kpigr03_detcntpertr
       EXCEPT ALL
-      SELECT num_ruc,ind_presdj,num_doc,periodo 
+      SELECT num_ruc,num_doc,periodo 
       FROM BDDWESTG.tmp093168_kpigr03_detcntperfv
     ) y1 
     ON y0.num_ruc=y1.num_ruc 
-    AND y0.ind_presdj=y1.ind_presdj 
     AND y0.num_docide_empl=y1.num_docide_empl
     AND SUBSTR(y0.per_decla,5,2)||SUBSTR(y0.per_decla,1,4)=y1.per_decla
   )WITH DATA NO PRIMARY INDEX;
@@ -326,23 +346,22 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_cndestino2 AS
   CREATE MULTISET TABLE BDDWESTG.DIF_K003022022
   AS
   (
-    SELECT  DISTINCT 'K003022022' as cod_kpi,
-            y0.num_ruc,
-            y0.ind_presdj,
-          y0.num_doc,
-          y0.periodo  
+    SELECT  
+          y0.num_ruc as num_ruc_trab,
+          y0.num_doc as num_ruc_empl,
+          y0.periodo as per_dif 
     FROM
     (
-      SELECT num_ruc,ind_presdj,num_doc,periodo 
+      SELECT num_ruc,num_doc,periodo 
       FROM BDDWESTG.tmp093168_kpigr03_detcntperfv
       EXCEPT ALL
-      SELECT num_ruc,ind_presdj,num_doc,num_perservicio
+      SELECT num_ruc,num_doc,num_perservicio
       FROM BDDWESTG.tmp093168_kpigr03_detcntpermdb
     ) y0
   )WITH DATA NO PRIMARY INDEX;
 
 LOCK ROW FOR ACCESS
-SELECT * FROM BDDWESTG.DIF_K003012022 ORDER BY num_ruc;
+SELECT * FROM BDDWESTG.DIF_K003012022 ORDER BY 1,6;
 
 LOCK ROW FOR ACCESS
-SELECT * FROM BDDWESTG.DIF_K003022022 ORDER BY num_ruc;
+SELECT * FROM BDDWESTG.DIF_K003022022 ORDER BY 1,3;

@@ -10,13 +10,29 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_cantrecibos as
 	FROM BDDWESTG.t3639recibo
 	WHERE EXTRACT(YEAR FROM fec_emision_rec) = 2022
 	--AND FEC_EMISION_REC <= DATE '2022-10-27'
-	AND FEC_EMISION_REC <= DATE '2022-09-30'
+	AND FEC_EMISION_REC <= DATE '2023-02-06'
 	AND ind_estado_rec = '0'
 	AND cod_tipcomp = '01'
 ) WITH DATA NO PRIMARY INDEX;
 
 select count(*) from BDDWESTG.tmp093168_cantrecibos;
+
+
+CREATE MULTISET TABLE BDDWESTG.tmp093168_cantnotascredito as
+(
+	SELECT distinct num_ruc ,num_serie ,'07' as cod_tipcomp ,num_nota as num_comprob
+	FROM BDDWESTG.t3634notacredito 
+	WHERE EXTRACT(YEAR FROM fec_emision_nc) = 2022
+	AND ind_estado_nc = '0'
+	AND cod_tipcomp_ori = '01'
+	AND fec_emision_nc  <= DATE '2023-02-06'
+) WITH DATA NO PRIMARY INDEX;
+
+.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
+
 /*******************Última DJ******************/
+
+
 
 DROP TABLE BDDWESTG.tmp093168_udjkpi1;
 CREATE MULTISET TABLE BDDWESTG.tmp093168_udjkpi1 as
@@ -36,7 +52,7 @@ FROM
 			WHERE t03formulario = '0616' 
 			AND t03periodo between '202201' and '202212'
 			--AND t03f_presenta <= DATE '2022-10-27'
-			AND t03f_presenta <= DATE '2022-09-30'
+			AND t03f_presenta <= DATE '2023-02-06'
 		    GROUP BY 1,2,3
 		    
 		) t1
@@ -70,77 +86,54 @@ AND substr(x0.num_serie_cp,1,1) ='E'
 )
 WITH DATA NO PRIMARY INDEX;
 
+DROP TABLE BDDWESTG.tmp093168_cantnotcredtf616;
+CREATE MULTISET TABLE BDDWESTG.tmp093168_cantnotcredtf616 as
+(
+SELECT DISTINCT x0.num_docide_dec,x0.num_serie_cp,x0.tip_cp,CAST(x0.num_cp AS INTEGER) AS num_cp
+FROM BDDWESTG.t1209f616rddet x0
+INNER JOIN BDDWESTG.tmp093168_udjkpi1 x1 ON 
+     x0.num_paq = x1.t03nabono
+AND x0.formulario = x1.t03formulario
+AND x0.norden = x1.t03norden
+AND x0.per_periodo = x1.t03periodo
+WHERE x1.t03periodo BETWEEN '202201' and '202212'
+AND x1.t03formulario = '0616'
+AND x0.tip_docide_dec = '6'
+AND x0.tip_cp = '07'
+AND substr(x0.num_serie_cp,1,1) ='E'
+)
+WITH DATA NO PRIMARY INDEX;
 
 /******Union de RxH de CPE y Form 0616**************/
 
 DROP TABLE BDDWESTG.tmp093168_detcantrxhe;
 CREATE MULTISET TABLE BDDWESTG.tmp093168_detcantrxhe as
 (
-	SELECT TRIM(num_ruc) as num_ruc,TRIM(num_serie) as num_serie,'02' cod_tipcomp,num_comprob FROM BDDWESTG.tmp093168_cantrecibos
+	SELECT  TRIM(num_ruc) AS num_ruc,
+	        TRIM(num_serie) as num_serie,
+	        '02' cod_tipcomp,num_comprob 
+	FROM BDDWESTG.tmp093168_cantrecibos
 	UNION
-	SELECT TRIM(num_docide_dec),TRIM(num_serie_cp),TRIM(tip_cp),num_cp FROM BDDWESTG.tmp093168_cantrecibosf616
+	SELECT TRIM(num_docide_dec),
+		   TRIM(num_serie_cp),
+		   TRIM(tip_cp),
+		   num_cp 
+	FROM BDDWESTG.tmp093168_cantrecibosf616
+	UNION 
+	SELECT  TRIM(num_ruc) AS num_ruc,
+	        TRIM(num_serie) as num_serie,
+	        cod_tipcomp,
+			num_comprob 
+	FROM BDDWESTG.tmp093168_cantnotascredito
+	UNION
+	SELECT
+		   TRIM(num_docide_dec),
+		   TRIM(num_serie_cp),
+		   TRIM(tip_cp),
+		   num_cp 
+	FROM BDDWESTG.tmp093168_cantnotcredtf616
 )
 WITH DATA NO PRIMARY INDEX;
-
-
-/*========================================================================================= */
-/**********************************ARCHIVO PERSONALIZADO************************************/
-/*========================================================================================= */
-
-/**********Determina Indicador de presentación de DJ Anual ****************/
-
-DROP TABLE tmp093168_kpiperson_dj1;
-CREATE MULTISET VOLATILE TABLE tmp093168_kpiperson_dj1 as
-(
-SELECT num_ruc,MAX(num_sec) as num_sec
-FROM BDDWESTG.t5847ctldecl 
-WHERE num_ejercicio = 2022
-AND num_formul = '0709' 
-AND ind_actual = '1' 
-AND ind_estado = '0' 
-AND ind_proceso = '1'
-GROUP BY 1
-) with data no primary INDEX ON COMMIT PRESERVE ROWS
-;
-
-------------1. Sí presentaron ----------------------
-
-DROP TABLE tmp093168_kpiperson_dj2;
-CREATE MULTISET VOLATILE TABLE tmp093168_kpiperson_dj2 as
-(
-SELECT num_ruc,MAX(num_sec) as num_sec 
-FROM BDDWESTG.t5847ctldecl 
-WHERE num_ejercicio = 2022
-AND num_formul = '0709' 
-AND ind_estado = '2'
-GROUP BY 1
-)  with data no primary INDEX ON COMMIT PRESERVE ROWS
-;
-
-------------2. No presentaron-------------------------
-
-DROP TABLE tmp093168_kpiperson_sindj;
-
-CREATE MULTISET VOLATILE TABLE tmp093168_kpiperson_sindj as (
-SELECT num_ruc, num_sec FROM tmp093168_kpiperson_dj1 
-WHERE num_ruc NOT IN ( SELECT num_ruc FROM tmp093168_kpiperson_dj2)
-)  WITH DATA NO PRIMARY INDEX ON COMMIT PRESERVE ROWS
-;
-
-------------3. Consolida Indicador -------------------
-
-DROP TABLE BDDWESTG.tmp093168_kpiperindj;
-
-CREATE MULTISET TABLE BDDWESTG.tmp093168_kpiperindj as (
-SELECT num_ruc, num_sec,0 as ind_presdj 
-FROM tmp093168_kpiperson_sindj
-UNION ALL
-SELECT num_ruc, num_sec,1 
-FROM tmp093168_kpiperson_dj2
-)
- WITH DATA UNIQUE PRIMARY INDEX (num_ruc)
-;
-
 
 /*======================================================================================*/
 /****************Genera Detalles con Indicador de Presentación***************************/
@@ -168,9 +161,8 @@ AS(
 					x0.num_serie,x0.tip_comp,x0.num_comp
 	FROM BDDWESTG.t5373cas107 x0
 	INNER JOIN BDDWESTG.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
-	WHERE x0.tip_comp = '02'
+	WHERE x0.tip_comp in ('02','07')
 	AND SUBSTR(x0.num_serie,1,1) = 'E'
-	AND x0.periodo <='092022'
 ) WITH DATA NO PRIMARY INDEX ; 
 
 select count(*) from BDDWESTG.tmp093168_detcantrxhefv;
@@ -184,9 +176,8 @@ AS(
 					x0.num_serie,x0.COD_TIPCOMP,x0.num_comp
 	FROM BDDWESTG.T5373CAS107_MONGODB x0
 	INNER JOIN BDDWESTG.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
-	WHERE x0.COD_TIPCOMP = '02'
+	WHERE x0.COD_TIPCOMP in ('02','07')
 	AND SUBSTR(x0.num_serie,1,1) = 'E'
-	AND x0.num_perservicio <='092022'
 ) WITH DATA NO PRIMARY INDEX ; 
 
 select count(*) from BDDWESTG.tmp093168_detcantrxhemdb;
@@ -240,11 +231,19 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpi02_cndestino2 AS
 		(
 			SELECT --x0.num_ruc,
 			       x0.ind_presdj,
-			       cant_rxh_origen as cant_origen,
+			       case when x0.ind_presdj=0 then (select coalesce(sum(cant_rxh_origen),0) from BDDWESTG.tmp093168_kpi01_cnorigen) else 0 end as cant_origen,
 			       coalesce(x1.cant_rxh_destino1,0) as cant_destino
-			FROM BDDWESTG.tmp093168_kpi01_cnorigen x0
+			FROM (
+				select y.ind_presdj,SUM(y.cant_rxh_origen) as cant_rxh_origen
+				from
+				(
+					select * from BDDWESTG.tmp093168_kpi01_cnorigen
+					union all select 1,0 from (select '1' agr1) a
+					union all select 0,0 from (select '0' agr0) b
+				) y group by 1
+
+			) x0
 			LEFT JOIN BDDWESTG.tmp093168_kpi01_cndestino1 x1 
-			--ON x0.num_ruc=x1.num_ruc AND x0.ind_presdj=x1.ind_presdj
 			ON x0.ind_presdj=x1.ind_presdj
 		) z
 	GROUP BY 1,2,3,4
@@ -262,13 +261,20 @@ DELETE FROM BDDWESTG.T11908DETKPITRIBINT WHERE COD_KPI='K001022022'  AND FEC_CAR
 	        SUM(z.cant_destino)
 	FROM
 		(
-			SELECT --x0.num_ruc,
+			SELECT 
 			       x0.ind_presdj,
 			       x0.cant_rxh_destino1 AS cant_origen,
-			       coalesce(x1.cant_rxh_destino2,0) AS cant_destino
-			FROM BDDWESTG.tmp093168_kpi01_cndestino1 x0
+			       case when x0.ind_presdj=0  then (select coalesce(sum(cant_rxh_destino2),0) from BDDWESTG.tmp093168_kpi02_cndestino2) else 0 end AS cant_destino
+			FROM (
+				select y.ind_presdj,SUM(y.cant_rxh_destino1) as cant_rxh_destino1
+				from
+				(
+					select * from BDDWESTG.tmp093168_kpi01_cndestino1
+					union all select 1,0 from (select '1' agr1) a
+					union all select 0,0 from (select '0' agr0) b
+				) y group by 1
+			) x0
 			LEFT JOIN BDDWESTG.tmp093168_kpi02_cndestino2 x1 
-			--ON x0.num_ruc=x1.num_ruc AND x0.ind_presdj=x1.ind_presdj
 			ON x0.ind_presdj=x1.ind_presdj
 		) z
 	GROUP BY 1,2,3,4
@@ -283,18 +289,16 @@ DELETE FROM BDDWESTG.T11908DETKPITRIBINT WHERE COD_KPI='K001022022'  AND FEC_CAR
 	AS
 	(
 	SELECT   DISTINCT
-	         'K001012022' cod_kpi,
-		      y0.num_ruc,
-		      y0.ind_presdj,
+		      y0.num_ruc as num_ruc_trab,
 			  y0.num_serie,
 			  y0.cod_tipcomp,
 			  y0.num_comprob
 	FROM
 	(
-		SELECT num_ruc,ind_presdj,num_serie,cod_tipcomp,num_comprob 
+		SELECT num_ruc,num_serie,cod_tipcomp,num_comprob 
 		FROM BDDWESTG.tmp093168_detcantrxhetr
 		EXCEPT ALL
-		SELECT num_ruc,ind_presdj,num_serie,tip_comp,cast(num_comp as integer)
+		SELECT num_ruc,num_serie,tip_comp,cast(num_comp as integer)
 		FROM BDDWESTG.tmp093168_detcantrxhefv
 	) y0
 	) WITH DATA NO PRIMARY INDEX;
@@ -304,18 +308,17 @@ DELETE FROM BDDWESTG.T11908DETKPITRIBINT WHERE COD_KPI='K001022022'  AND FEC_CAR
 	CREATE MULTISET TABLE BDDWESTG.DIF_K001022022
 	AS
 	(
-	SELECT   DISTINCT 'K001022022' as cod_kpi,
-		      y0.num_ruc,
-		      y0.ind_presdj,
+	SELECT   DISTINCT 
+		      y0.num_ruc as num_ruc_trab,
 			  y0.num_serie,
 			  y0.tip_comp  as cod_tipcomp,
 			  y0.num_comprob
 	FROM
 	(
-		SELECT num_ruc,ind_presdj,num_serie,tip_comp,cast(num_comp as integer)  as num_comprob
+		SELECT num_ruc,num_serie,tip_comp,cast(num_comp as integer)  as num_comprob
 		FROM BDDWESTG.tmp093168_detcantrxhefv
 		EXCEPT ALL
-		SELECT num_ruc,ind_presdj,num_serie,cod_tipcomp,cast(num_comp as integer) 
+		SELECT num_ruc,num_serie,cod_tipcomp,cast(num_comp as integer) 
 		FROM BDDWESTG.tmp093168_detcantrxhemdb
 	) y0
 	) WITH DATA NO PRIMARY INDEX;
