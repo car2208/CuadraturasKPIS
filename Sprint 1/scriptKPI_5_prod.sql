@@ -68,8 +68,8 @@ AND x0.cod_tributo = '030502'
 AND x0.ind_exist_aseg IN ('6','8')
 AND x0.tip_trabajador NOT IN ('23','24','26','35')
 AND x0.mto_base_imp IS NOT NULL
-)
-WITH DATA NO PRIMARY INDEX;
+AND x0.mto_base_imp > 0
+) WITH DATA NO PRIMARY INDEX;
 
 
 --DROP TABLE BDDWESTG.tmp093168_kpigr05_detcnt_tr;
