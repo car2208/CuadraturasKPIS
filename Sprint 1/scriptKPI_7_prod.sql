@@ -469,7 +469,7 @@ DROP TABLE BDDWESTG.TMP_KPI07_DIF_FVIRNOMODB;
       SELECT DISTINCT b.num_ruc,'ND' as ind_declara,
       SUBSTR(A.PERIODO,3,4)||SUBSTR(A.PERIODO,1,2) PERIODO
       FROM BDDWESTG.T5410CAS128 a 
-      INNER JOIN (SELECT num_ruc FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=0)  b 
+      INNER JOIN (SELECT num_ruc,num_sec FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=0)  b 
       ON a.num_sec = b.num_sec
       --WHERE b.num_formul = '0709' 
       --AND b.num_ejercicio = 2022
@@ -483,7 +483,7 @@ DROP TABLE BDDWESTG.TMP_KPI07_DIF_FVIRNOMODB;
       SELECT DISTINCT b.num_ruc,'D' as ind_declara,
       SUBSTR(A.PERIODO,3,4)||SUBSTR(A.PERIODO,1,2) PERIODO
       FROM BDDWESTG.T5410CAS128 a 
-      INNER JOIN (SELECT num_ruc FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=1) b 
+      INNER JOIN (SELECT num_ruc,num_sec FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=1) b 
       ON a.num_sec = b.num_sec;
 
      
@@ -511,7 +511,7 @@ DROP TABLE BDDWESTG.TMP_KPI07_DIF_FVIRNOMODB;
       SELECT DISTINCT b.num_ruc,'ND' as ind_declara
       ,SUBSTR(A.NUM_PERPAGO,3,4)||SUBSTR(A.NUM_PERPAGO,1,2) PERIODO
       FROM BDDWESTG.T5410CAS128_mongodb a 
-      INNER JOIN (SELECT num_ruc FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=0)  b ON a.num_sec = b.num_sec
+      INNER JOIN (SELECT num_ruc,num_sec FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=0)  b ON a.num_sec = b.num_sec
       --WHERE b.num_formul = '0709' 
       --AND b.num_ejercicio = 2022
             
@@ -524,7 +524,7 @@ DROP TABLE BDDWESTG.TMP_KPI07_DIF_FVIRNOMODB;
       SELECT DISTINCT b.num_ruc,'D' as ind_declara
       ,SUBSTR(A.NUM_PERPAGO,3,4)||SUBSTR(A.NUM_PERPAGO,1,2) PERIODO
       FROM BDDWESTG.T5410CAS128_mongodb a 
-      INNER JOIN (SELECT num_ruc FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=1)  b ON a.num_sec = b.num_sec;
+      INNER JOIN (SELECT num_ruc,num_sec FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=1)  b ON a.num_sec = b.num_sec;
 
      --- RESULTADO : Tabla BDDWESTG.TMP_KPI07_selecfvirtual_relacion_MDB que contiene el detalle
      --- 			de los rucs que presentaron y no presentaron declaracion

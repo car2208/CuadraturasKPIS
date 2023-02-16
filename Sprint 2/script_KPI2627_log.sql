@@ -21,6 +21,7 @@ LEFT JOIN bddwestg.ddp x1 ON x0.num_ruc = x1.ddp_numruc
 LEFT JOIN bddwestg.tmp093168_kpiperindj x2 ON x0.num_ruc=x2.num_ruc
 WHERE x0.per_pag between '202201' and '202212'
 AND x0.ind_tippag = '3'
+AND (substr(x0.num_ruc,1,1) <>'2' OR  x0.num_ruc in (select num_ruc from bddwestg.tmp093168_rucs20_incluir))
 
 )
 WITH DATA NO PRIMARY INDEX;

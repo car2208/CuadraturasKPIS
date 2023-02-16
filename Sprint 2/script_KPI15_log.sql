@@ -39,6 +39,7 @@ AND x0.ind_tip_gasto = '05'
 AND x0.ind_estado = '1'
 AND x0.fec_doc >= CAST('2022-01-01' AS DATE FORMAT 'YYYY-MM-DD') 
 AND x0.fec_doc <= CAST('2022-12-31' AS DATE FORMAT 'YYYY-MM-DD')
+AND (substr(x0.num_ruc,1,1) <>'2' OR  x0.num_ruc in (select num_ruc from bddwestg.tmp093168_rucs20_incluir))
 )
 WITH DATA NO PRIMARY INDEX;
 

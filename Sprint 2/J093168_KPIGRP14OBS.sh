@@ -416,7 +416,6 @@ SEL CURRENT_TIMESTAMP;
 DROP TABLE ${BD_STG}.tmp093168_kpi14_detcpeobs_tr;
 DROP TABLE ${BD_STG}.tmp093168_kpi14_detcpeobs_fv;
 DROP TABLE ${BD_STG}.tmp093168_kpi14_detcpeobs_mdb;
-
 DROP TABLE ${BD_STG}.tmp093168_kpigr14_obs_cnorigen;
 DROP TABLE ${BD_STG}.tmp093168_kpigr14_obs_cndestino1;
 DROP TABLE ${BD_STG}.tmp093168_kpigr14_obs_cndestino2;

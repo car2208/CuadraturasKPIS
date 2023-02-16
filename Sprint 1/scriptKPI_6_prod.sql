@@ -554,7 +554,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
       SELECT b.num_ruc,'ND' as ind_declara,
       SUBSTR(A.PERIODO,3,4)||SUBSTR(A.PERIODO,1,2) PERIODO
       FROM BDDWESTG.T5409CAS127 a 
-      INNER JOIN (SELECT num_ruc FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=0)  
+      INNER JOIN (SELECT num_ruc,num_sec FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=0)  
       b ON a.num_sec = b.num_sec
       --WHERE b.num_formul = '0709' 
       --AND b.num_ejercicio = 2022
@@ -568,7 +568,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
       SELECT distinct b.num_ruc,'D' as ind_declara,
       SUBSTR(A.PERIODO,3,4)||SUBSTR(A.PERIODO,1,2) PERIODO
       FROM BDDWESTG.T5409CAS127 a 
-      INNER JOIN (SELECT num_ruc FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=1) 
+      INNER JOIN (SELECT num_ruc,num_sec FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=1) 
       b ON a.num_sec = b.num_sec;
 
      
@@ -597,7 +597,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
       SELECT b.num_ruc,'ND' as ind_declara
       ,SUBSTR(A.NUM_PERPAGO,3,4)||SUBSTR(A.NUM_PERPAGO,1,2) PERIODO
       FROM BDDWESTG.T5409CAS127_MONGODB a 
-      INNER JOIN (SELECT num_ruc FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=0)  b 
+      INNER JOIN (SELECT num_ruc,num_sec FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=0)  b 
       ON a.num_sec = b.num_sec
             
      ) WITH DATA NO PRIMARY INDEX ;
@@ -609,7 +609,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
       SELECT distinct b.num_ruc,'D' as ind_declara
       ,SUBSTR(A.NUM_PERPAGO,3,4)||SUBSTR(A.NUM_PERPAGO,1,2) PERIODO
       FROM BDDWESTG.T5409CAS127_MONGODB a 
-      INNER JOIN (SELECT num_ruc FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=1) b 
+      INNER JOIN (SELECT num_ruc,num_sec FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=1) b 
       ON a.num_sec = b.num_sec;
 
      
