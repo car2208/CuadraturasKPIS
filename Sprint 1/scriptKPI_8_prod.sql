@@ -169,6 +169,7 @@ SELECT DISTINCT num_rucs AS num_ruc_trab,
       coalesce(x1.ind_presdj,0) as ind_presdj
 FROM bddwestg.tmp093168_kpigr8_periodos_compagfilter x0
 LEFT JOIN bddwestg.tmp093168_kpiperindj x1 ON x0.num_rucs = x1.num_ruc
+WHERE substr(x0.num_rucs,1,1) <>'2' or  x0.num_rucs in (select num_ruc from ${BD_STG}.tmp093168_rucs20_incluir)
 ) WITH DATA NO PRIMARY INDEX ;
 
 

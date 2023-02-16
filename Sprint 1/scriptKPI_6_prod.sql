@@ -492,7 +492,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
 /************************* INICIO TABLAS ORIGEN FVIRTUAL ***************************** /
 
 		/*INICIO PASO1 ---------------------------------------------------------------------*/
-
+/*
      -- Aun no Declarado (ND)
      -- t_rucs_fvirtual_01
      SELECT 1 FROM dbc.TablesV WHERE databasename = 'BDDWESTG' AND TableName = 'TMP_KPI06_selecfvirtual_ND';
@@ -540,7 +540,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
         
         
      ) WITH DATA NO PRIMARY INDEX ;
-
+*/
  
   /*FIN    PASO1 ---------------------------------------------------------------------*/
   /*INICIO PASO2 ---------------------------------------------------------------------*/
@@ -554,7 +554,8 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
       SELECT b.num_ruc,'ND' as ind_declara,
       SUBSTR(A.PERIODO,3,4)||SUBSTR(A.PERIODO,1,2) PERIODO
       FROM BDDWESTG.T5409CAS127 a 
-      INNER JOIN BDDWESTG.TMP_KPI06_selecfvirtual_D_ND  b ON a.num_sec = b.num_sec
+      INNER JOIN (SELECT num_ruc FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=0)  
+      b ON a.num_sec = b.num_sec
       --WHERE b.num_formul = '0709' 
       --AND b.num_ejercicio = 2022
      
@@ -567,7 +568,8 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
       SELECT distinct b.num_ruc,'D' as ind_declara,
       SUBSTR(A.PERIODO,3,4)||SUBSTR(A.PERIODO,1,2) PERIODO
       FROM BDDWESTG.T5409CAS127 a 
-      INNER JOIN BDDWESTG.TMP_KPI06_selecfvirtual_D b ON a.num_sec = b.num_sec;
+      INNER JOIN (SELECT num_ruc FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=1) 
+      b ON a.num_sec = b.num_sec;
 
      
      --- RESULTADO : Tabla BDDWESTG.TMP_KPI06_selecfvirtual_relacion que contiene el detalle
@@ -595,7 +597,8 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
       SELECT b.num_ruc,'ND' as ind_declara
       ,SUBSTR(A.NUM_PERPAGO,3,4)||SUBSTR(A.NUM_PERPAGO,1,2) PERIODO
       FROM BDDWESTG.T5409CAS127_MONGODB a 
-      INNER JOIN BDDWESTG.TMP_KPI06_selecfvirtual_D_ND  b ON a.num_sec = b.num_sec
+      INNER JOIN (SELECT num_ruc FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=0)  b 
+      ON a.num_sec = b.num_sec
             
      ) WITH DATA NO PRIMARY INDEX ;
 
@@ -606,7 +609,8 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
       SELECT distinct b.num_ruc,'D' as ind_declara
       ,SUBSTR(A.NUM_PERPAGO,3,4)||SUBSTR(A.NUM_PERPAGO,1,2) PERIODO
       FROM BDDWESTG.T5409CAS127_MONGODB a 
-      INNER JOIN BDDWESTG.TMP_KPI06_selecfvirtual_D b ON a.num_sec = b.num_sec;
+      INNER JOIN (SELECT num_ruc FROM BDDWESTG.tmp093168_kpiperindj WHERE ind_presdj=1) b 
+      ON a.num_sec = b.num_sec;
 
      
      --- RESULTADO : Tabla BDDWESTG.TMP_KPI09_selecfvirtual_relacion_MDB que contiene el detalle
@@ -625,10 +629,14 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
        --DROP TABLE BDDWESTG.TMP_KPI06_cuentaplame;
       CREATE MULTISET TABLE BDDWESTG.TMP_KPI06_cuentaplame  
       AS(
-    
+        select  tr.numruc,tr.perpag
+        from 
+        (
         SELECT a.numruc, a.perpag FROM BDDWESTG.TMP_KPI06_SIRATPRICO a , BDDWESTG.DDP_DEPEN b WHERE a.numruc=b.ddp_numruc 
         UNION 
         SELECT a.numruc, a.perpag FROM BDDWESTG.TMP_KPI06_SIRATMEPECO a , BDDWESTG.DDP_DEPEN b WHERE a.numruc=b.ddp_numruc 
+        ) tr
+        where SUBSTR(tr.numruc,1,1)<>'2' OR tr.numruc IN (SELECT num_ruc FROM bddwestg.tmp093168_rucs20_incluir)
        
       ) WITH DATA NO PRIMARY INDEX ;
 

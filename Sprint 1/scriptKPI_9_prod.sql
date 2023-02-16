@@ -78,6 +78,7 @@ SELECT DISTINCT x0.num_rucs AS num_ruc_trab,
       coalesce(x1.ind_presdj,0) as ind_presdj
 FROM bddwestg.tmp093168_kpigr9_periodos_compag x0
 LEFT JOIN bddwestg.tmp093168_kpiperindj x1 ON x0.num_rucs = x1.num_ruc
+WHERE substr(x0.num_rucs,1,1) <>'2' or  x0.num_rucs in (select num_ruc from bddwestg.tmp093168_rucs20_incluir)
 ) WITH DATA NO PRIMARY INDEX ;
 
 
@@ -252,7 +253,7 @@ CREATE MULTISET TABLE bddwestg.tmp093168_kpigr09_cndestino2 AS
 
 /********************************************************************************/
 /*************TRANSACCIONAL MENOS T1851*********************************/
-  
+  drop table bddwestg.tmp093168_dif_K009012022;
   CREATE MULTISET TABLE bddwestg.tmp093168_dif_K009012022 AS (
     SELECT 
           y0.num_ruc_trab,
@@ -289,7 +290,7 @@ CREATE MULTISET TABLE bddwestg.tmp093168_kpigr09_cndestino2 AS
 
   /*******************FVIRTUAL MENOS MONGO*********************************/
 
-
+ drop table bddwestg.tmp093168_dif_K009022022 ;
   CREATE MULTISET TABLE bddwestg.tmp093168_dif_K009022022 AS (
   SELECT 
       y0.num_ruc as num_ruc_trab,

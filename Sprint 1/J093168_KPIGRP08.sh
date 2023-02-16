@@ -64,7 +64,14 @@ SEL CURRENT_TIMESTAMP;
 
 /**********Obtiene �ltima DJ Form 0601 ********************************/
 
-DROP TABLE ${BD_STG}.tmp093168_udjkpigr8 ;
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_udjkpigr8';
+.IF activitycount = 0 THEN .GOTO ok 
+
+DROP TABLE ${BD_STG}.tmp093168_udjkpigr8;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_udjkpigr8 as
 (
   SELECT t2.t03nabono,t2.t03norden,t2.t03formulario,
@@ -94,7 +101,15 @@ WITH DATA UNIQUE PRIMARY INDEX (t03nabono,t03norden,t03formulario);
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_kpigr8_periodos_compag';
+.IF activitycount = 0 THEN .GOTO ok 
+
 DROP TABLE ${BD_STG}.tmp093168_kpigr8_periodos_compag;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr8_periodos_compag AS
 (
   SELECT DISTINCT
@@ -127,8 +142,14 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr8_periodos_compag AS
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_kpigr8_periodos_compagfilter';
+.IF activitycount = 0 THEN .GOTO ok 
 
 DROP TABLE ${BD_STG}.tmp093168_kpigr8_periodos_compagfilter;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr8_periodos_compagfilter AS
  (   SELECT 
         x0.num_rucs,  
@@ -193,7 +214,16 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr8_periodos_compagfilter AS
 
 /*************************************************************************************************************/
 
+-------1. Detalle en transaccional
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_kpigr08_detcntpertr';
+.IF activitycount = 0 THEN .GOTO ok 
+
 DROP TABLE ${BD_STG}.tmp093168_kpigr08_detcntpertr;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr08_detcntpertr
 AS(
 SELECT DISTINCT num_rucs AS num_ruc_trab,
@@ -204,11 +234,20 @@ SELECT DISTINCT num_rucs AS num_ruc_trab,
       coalesce(x1.ind_presdj,0) as ind_presdj
 FROM ${BD_STG}.tmp093168_kpigr8_periodos_compagfilter x0
 LEFT JOIN ${BD_STG}.tmp093168_kpiperindj x1 ON x0.num_rucs = x1.num_ruc
+WHERE substr(x0.num_rucs,1,1) <>'2' or  x0.num_rucs in (select num_ruc from ${BD_STG}.tmp093168_rucs20_incluir)
 ) WITH DATA NO PRIMARY INDEX ;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
+-------2. Detalle en t1851
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_kpigr08_detcntper1851';
+.IF activitycount = 0 THEN .GOTO ok 
+
 DROP TABLE ${BD_STG}.tmp093168_kpigr08_detcntper1851;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr08_detcntper1851
 AS(
 SELECT  DISTINCT x0.num_ruc,x0.NUM_RUC_RET,x0.per_tri,x0.cod_for,x0.num_ord,
@@ -223,8 +262,15 @@ WHERE  SUBSTR(x0.per_tri,1,4) = '2022'
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
+-------3. Detalle en FVIRTUAL
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_kpigr08_detcntperfv';
+.IF activitycount = 0 THEN .GOTO ok 
 
 DROP TABLE ${BD_STG}.tmp093168_kpigr08_detcntperfv;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr08_detcntperfv
 AS(
 SELECT DISTINCT x1.num_ruc,x0.num_doc,x0.per_mes,x0.num_formul,x0.num_ord,
@@ -237,7 +283,16 @@ AND x0.mto_retenido > 0
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
+
+-------4. Detalle en MONGODB
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_kpigr08_detcntpermdb';
+.IF activitycount = 0 THEN .GOTO ok 
+
 DROP TABLE ${BD_STG}.tmp093168_kpigr08_detcntpermdb;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr08_detcntpermdb
 AS(
 SELECT DISTINCT x1.num_ruc,x0.num_doc,x0.num_perimpreten,x0.cod_formul,x0.num_numorden,
@@ -513,7 +568,7 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02}	;
     DROP TABLE ${BD_STG}.tmp093168_udjkpigr8;
     DROP TABLE ${BD_STG}.tmp093168_kpigr8_periodos_compag;
     DROP TABLE ${BD_STG}.tmp093168_kpigr08_detcntpertr;
-    DROP TABLE ${BD_STG}.tmp093168_kpigr08_detcntpertr1851;
+    DROP TABLE ${BD_STG}.tmp093168_kpigr08_detcntper1851;
     DROP TABLE ${BD_STG}.tmp093168_kpigr08_detcntperfv;
     DROP TABLE ${BD_STG}.tmp093168_kpigr08_detcntpermdb;
     DROP TABLE ${BD_STG}.tmp093168_kpigr08_cnorigen;

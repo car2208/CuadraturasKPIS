@@ -157,6 +157,8 @@ SELECT
         x0.per_aporta
 FROM BDDWESTG.tmp093168_kpigr02_detcnt_tr x0
 LEFT JOIN BDDWESTG.tmp093168_kpiperindj x1 on x0.num_ruc=x1.num_ruc
+WHERE substr(x0.num_ruc,1,1) <>'2' 
+or  x0.num_ruc in (select num_ruc from BDDWESTG.tmp093168_rucs20_incluir)
 ) WITH DATA NO PRIMARY INDEX ; 
 
 -------2. Detalle de Periodos en Archivo Personalizado Fvirtual
@@ -292,7 +294,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr02_cndestino2 AS
 
 /******************************************************************************/
 
-
+	DROP TABLE BDDWESTG.DIF_K002012022;
 	CREATE MULTISET TABLE BDDWESTG.DIF_K002012022
 	AS
 	(
@@ -320,7 +322,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr02_cndestino2 AS
 	) WITH DATA NO PRIMARY INDEX;
 
 
-
+	DROP TABLE BDDWESTG.DIF_K002022022;
 	CREATE MULTISET TABLE BDDWESTG.DIF_K002022022
 	AS
 	(

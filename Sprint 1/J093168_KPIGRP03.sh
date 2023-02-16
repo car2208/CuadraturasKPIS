@@ -276,7 +276,8 @@ SELECT
 FROM ${BD_STG}.tmp093168_kpigr03_detcnt_tr x0
 LEFT JOIN ${BD_STG}.tmp093168_kpiperindj x1 on x0.num_ruc=x1.num_ruc
 INNER JOIN ${BD_STG}.dds x2 ON x0.num_ruc=x2.dds_numruc 
-WHERE x2.dds_domici = '1'  AND x2.dds_docide IN ('1','2','3','4','5','7','8') 
+WHERE x2.dds_domici = '1'  AND x2.dds_docide IN ('1','2','3','4','5','7','8')
+AND (substr(x0.num_ruc,1,1) <>'2' OR  x0.num_ruc in (select num_ruc from ${BD_STG}.tmp093168_rucs20_incluir))
 ) WITH DATA NO PRIMARY INDEX ;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 

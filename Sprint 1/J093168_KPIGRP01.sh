@@ -270,6 +270,7 @@ AS(
 			x0.num_serie,x0.cod_tipcomp,x0.num_comprob
 	FROM ${BD_STG}.tmp093168_detcantrxhe x0
 	LEFT JOIN ${BD_STG}.tmp093168_kpiperindj x1 on x0.num_ruc=x1.num_ruc
+	WHERE substr(x0.num_ruc,1,1) <>'2' or  x0.num_ruc in (select num_ruc from ${BD_STG}.tmp093168_rucs20_incluir)
 ) WITH DATA NO PRIMARY INDEX ; 
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 

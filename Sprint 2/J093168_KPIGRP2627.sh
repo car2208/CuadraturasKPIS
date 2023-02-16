@@ -92,6 +92,7 @@ LEFT JOIN ${BD_STG}.ddp x1 ON x0.num_ruc = x1.ddp_numruc
 LEFT JOIN ${BD_STG}.tmp093168_kpiperindj x2 ON x0.num_ruc=x2.num_ruc
 WHERE x0.per_pag between '${PERIODO}01' and '${PERIODO}12'
 AND x0.ind_tippag = '3'
+AND (substr(x0.num_ruc,1,1) <>'2' OR  x0.num_ruc in (select num_ruc from ${BD_STG}.tmp093168_rucs20_incluir))
 
 )
 WITH DATA NO PRIMARY INDEX;

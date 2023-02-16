@@ -176,6 +176,9 @@ FROM BDDWESTG.tmp093168_kpigr03_detcnt_tr x0
 LEFT JOIN BDDWESTG.tmp093168_kpiperindj x1 on x0.num_ruc=x1.num_ruc
 INNER JOIN bddwestg.dds x2 ON x0.num_ruc=x2.dds_numruc 
 WHERE x2.dds_domici = '1'  AND x2.dds_docide IN ('1','2','3','4','5','7','8') 
+AND (substr(x0.num_ruc,1,1) <>'2' OR  
+     x0.num_ruc in (select num_ruc from BDDWESTG.tmp093168_rucs20_incluir)
+     )
 ) WITH DATA NO PRIMARY INDEX ; 
 
 
@@ -191,7 +194,6 @@ AS
           x0.periodo
   FROM BDDWESTG.T5376CAS108 x0
   INNER JOIN BDDWESTG.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
-  --WHERE x0.tip_doc='06'
 ) WITH DATA NO PRIMARY INDEX ; 
 
 
@@ -204,7 +206,6 @@ AS(
           x0.num_doc, x0.num_perservicio
   FROM BDDWESTG.T5376CAS108_MONGODB x0
   INNER JOIN BDDWESTG.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
-  --WHERE x0.COD_TIPDOC='06'
 ) WITH DATA NO PRIMARY INDEX ; 
 
 
@@ -315,7 +316,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_cndestino2 AS
   
 /***************************************************************************************/
  
-
+DROP TABLE BDDWESTG.DIF_K003012022;
   CREATE MULTISET TABLE BDDWESTG.DIF_K003012022
   AS
   (
@@ -342,7 +343,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr03_cndestino2 AS
   )WITH DATA NO PRIMARY INDEX;
 
 
-
+ DROP TABLE BDDWESTG.DIF_K003022022;
   CREATE MULTISET TABLE BDDWESTG.DIF_K003022022
   AS
   (

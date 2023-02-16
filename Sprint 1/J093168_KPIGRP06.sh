@@ -725,7 +725,7 @@ SEL CURRENT_TIMESTAMP;
 /************************* INICIO TABLAS ORIGEN FVIRTUAL ***************************** /
 
 		/*INICIO PASO1 ---------------------------------------------------------------------*/
-
+		/**
 					-- Aun no Declarado (ND)
 					-- t_rucs_fvirtual_01
 					SELECT 1 FROM dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'TMP_KPI06_selecfvirtual_ND';  
@@ -792,12 +792,13 @@ SEL CURRENT_TIMESTAMP;
 					
 								SELECT num_ruc, num_sec FROM ${BD_STG}.TMP_KPI06_selecfvirtual_ND 
 								WHERE num_ruc NOT IN (SELECT num_ruc FROM ${BD_STG}.TMP_KPI06_selecfvirtual_D)
+								AND ()
 								
 								
 					) WITH DATA NO PRIMARY INDEX ; 
 					.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
-	
+		****/
 		
 		/*FIN    PASO1 ---------------------------------------------------------------------*/
 		/*INICIO PASO2 ---------------------------------------------------------------------*/
@@ -819,7 +820,7 @@ SEL CURRENT_TIMESTAMP;
 						SELECT DISTINCT b.num_ruc,'ND' as ind_declara,
 						SUBSTR(A.PERIODO,3,4)||SUBSTR(A.PERIODO,1,2) PERIODO
 						FROM ${TBL_T5409} a 
-						INNER JOIN ${BD_STG}.TMP_KPI06_selecfvirtual_D_ND  b ON a.num_sec = b.num_sec
+						INNER JOIN (SELECT num_ruc FROM ${BD_STG}.tmp093168_kpiperindj WHERE ind_presdj=0)  b ON a.num_sec = b.num_sec
 						--WHERE b.num_formul = '0709' 
 						--AND b.num_ejercicio = ${PERIODO}
 					
@@ -833,7 +834,7 @@ SEL CURRENT_TIMESTAMP;
 						SELECT distinct b.num_ruc,'D' as ind_declara,
 						SUBSTR(A.PERIODO,3,4)||SUBSTR(A.PERIODO,1,2) PERIODO
 						FROM ${TBL_T5409} a 
-						INNER JOIN ${BD_STG}.TMP_KPI06_selecfvirtual_D b ON a.num_sec = b.num_sec;
+						INNER JOIN (SELECT num_ruc FROM ${BD_STG}.tmp093168_kpiperindj WHERE ind_presdj=1)  b ON a.num_sec = b.num_sec;
 						--WHERE b.num_formul = '0709' 
 						--AND b.num_ejercicio = ${PERIODO};
 						
@@ -870,7 +871,7 @@ SEL CURRENT_TIMESTAMP;
 						SELECT DISTINCT b.num_ruc,'ND' as ind_declara
 						,SUBSTR(A.NUM_PERPAGO,3,4)||SUBSTR(A.NUM_PERPAGO,1,2) PERIODO
 						FROM ${TBL_T5409_MDB} a 
-						INNER JOIN ${BD_STG}.TMP_KPI06_selecfvirtual_D_ND  b ON a.num_sec = b.num_sec
+						INNER JOIN (SELECT num_ruc FROM ${BD_STG}.tmp093168_kpiperindj WHERE ind_presdj=0) b ON a.num_sec = b.num_sec
 												
 					) WITH DATA NO PRIMARY INDEX ; 
 					.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
@@ -882,7 +883,7 @@ SEL CURRENT_TIMESTAMP;
 						SELECT distinct b.num_ruc,'D' as ind_declara
 						,SUBSTR(A.NUM_PERPAGO,3,4)||SUBSTR(A.NUM_PERPAGO,1,2) PERIODO
 						FROM ${TBL_T5409_MDB} a 
-						INNER JOIN ${BD_STG}.TMP_KPI06_selecfvirtual_D b ON a.num_sec = b.num_sec;
+						INNER JOIN (SELECT num_ruc FROM ${BD_STG}.tmp093168_kpiperindj WHERE ind_presdj=1) b ON a.num_sec = b.num_sec;
 
 						.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 					
@@ -1065,7 +1066,7 @@ DROP TABLE ${BD_STG}.TMP_KPI06_SIRATMEPECO;
 DROP TABLE ${BD_STG}.TMP_KPI06_cuentaplame;
 DROP TABLE ${BD_STG}.TMP_KPI06_selecfvirtual_ND;
 DROP TABLE ${BD_STG}.TMP_KPI06_selecfvirtual_D;
-DROP TABLE ${BD_STG}.TMP_KPI06_selecfvirtual_D_ND;
+--DROP TABLE ${BD_STG}.TMP_KPI06_selecfvirtual_D_ND;
 DROP TABLE ${BD_STG}.TMP_KPI06_selecfvirtual_relacion;
 DROP TABLE ${BD_STG}.TMP_KPI06_selecfvirtual_relacion_MDB;
 --DROP TABLE ${BD_STG}.TMP_KPI06_DIF_RECNOFVIR;

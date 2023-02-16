@@ -148,6 +148,7 @@ AS(
 			x0.num_serie,x0.cod_tipcomp,x0.num_comprob
 	FROM BDDWESTG.tmp093168_detcantrxhe x0
 	LEFT JOIN BDDWESTG.tmp093168_kpiperindj x1 on x0.num_ruc=x1.num_ruc
+	WHERE substr(x0.num_ruc,1,1) <>'2' or  x0.num_ruc in (select num_ruc from BDDWESTG.tmp093168_rucs20_incluir)
 ) WITH DATA NO PRIMARY INDEX ; 
 
 select count(*) from BDDWESTG.tmp093168_detcantrxhetr;
@@ -284,7 +285,7 @@ DELETE FROM BDDWESTG.T11908DETKPITRIBINT WHERE COD_KPI='K001022022'  AND FEC_CAR
 /***********************Genera Detalle de Diferencias**************************/
 /*=============================================================================*/	
 	
-
+	DROP TABLE VBDDWESTG.DIF_K001012022;
 	CREATE MULTISET TABLE BDDWESTG.DIF_K001012022 
 	AS
 	(
@@ -304,7 +305,7 @@ DELETE FROM BDDWESTG.T11908DETKPITRIBINT WHERE COD_KPI='K001022022'  AND FEC_CAR
 	) WITH DATA NO PRIMARY INDEX;
 
 
-
+	DROP TABLE BDDWESTG.DIF_K001022022
 	CREATE MULTISET TABLE BDDWESTG.DIF_K001022022
 	AS
 	(

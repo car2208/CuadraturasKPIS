@@ -59,11 +59,16 @@ SEL CURRENT_TIMESTAMP;
 /**********************************TRANSACCIONALES******************************************/
 /*========================================================================================= */
 
-/*******************Obtiene última dj form 0601********************************************/
-
-
 /**********Obtiene Última DJ Form 0601 ********************************/
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_udjkpigr9';
+.IF activitycount = 0 THEN .GOTO ok 
+
 DROP TABLE ${BD_STG}.tmp093168_udjkpigr9;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_udjkpigr9 as
 (
   SELECT t2.t03nabono,t2.t03norden,t2.t03formulario,
@@ -91,7 +96,16 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_udjkpigr9 as
 )
 WITH DATA NO PRIMARY INDEX;
 
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_kpigr9_periodos_compag';
+.IF activitycount = 0 THEN .GOTO ok 
+
 DROP TABLE ${BD_STG}.tmp093168_kpigr9_periodos_compag;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr9_periodos_compag AS
 (
   SELECT DISTINCT
@@ -122,7 +136,20 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr9_periodos_compag AS
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
+
+/***********************************************************************************************************/
+--------------Genera tablas detalles de las fuentes---------------------------------------------------------
+
+------------1. Detalle transaccional
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_kpigr09_detcntpertr';
+.IF activitycount = 0 THEN .GOTO ok 
+
 DROP TABLE ${BD_STG}.tmp093168_kpigr09_detcntpertr;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr09_detcntpertr
 AS(
 SELECT DISTINCT x0.num_rucs AS num_ruc_trab,
@@ -133,11 +160,21 @@ SELECT DISTINCT x0.num_rucs AS num_ruc_trab,
       coalesce(x1.ind_presdj,0) as ind_presdj
 FROM ${BD_STG}.tmp093168_kpigr9_periodos_compag x0
 LEFT JOIN ${BD_STG}.tmp093168_kpiperindj x1 ON x0.num_rucs = x1.num_ruc
+WHERE substr(x0.num_rucs,1,1) <>'2' or  x0.num_rucs in (select num_ruc from ${BD_STG}.tmp093168_rucs20_incluir)
 ) WITH DATA NO PRIMARY INDEX ;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
+------------2. Detalle T1851
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_kpigr09_detcntper1851';
+.IF activitycount = 0 THEN .GOTO ok 
+
 DROP TABLE ${BD_STG}.tmp093168_kpigr09_detcntper1851;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr09_detcntper1851
 AS(
 SELECT  DISTINCT x0.num_ruc,x0.NUM_RUC_RET,x0.per_tri,x0.cod_for,x0.num_ord,
@@ -152,8 +189,16 @@ WHERE  SUBSTR(x0.per_tri,1,4) = '2022'
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
+------------3. Detalle FVIRTUAL
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_kpigr09_detcntperfv';
+.IF activitycount = 0 THEN .GOTO ok 
 
 DROP TABLE ${BD_STG}.tmp093168_kpigr09_detcntperfv;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr09_detcntperfv
 AS(
 SELECT DISTINCT x1.num_ruc,x0.num_doc,x0.per_mes,x0.num_formul,x0.num_ord,
@@ -166,7 +211,17 @@ AND x0.mto_retenido > 0
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
+
+------------4. Detalle MongoDB
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_kpigr09_detcntpermdb';
+.IF activitycount = 0 THEN .GOTO ok 
+
 DROP TABLE ${BD_STG}.tmp093168_kpigr09_detcntpermdb;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr09_detcntpermdb
 AS(
 SELECT DISTINCT x1.num_ruc,x0.num_doc,x0.num_perimpreten,x0.cod_formul,x0.num_numorden,
@@ -442,16 +497,16 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02}	;
 
 /*******************************************************************************************/
 
-    --DROP TABLE ${BD_STG}.tmp093168_udjkpigr9;
-    --DROP TABLE ${BD_STG}.tmp093168_kpigr9_periodos_compag;
-    --DROP TABLE ${BD_STG}.tmp093168_kpigr09_detcntpertr;
-    --DROP TABLE ${BD_STG}.tmp093168_kpigr09_detcntpertr1851;
-    --DROP TABLE ${BD_STG}.tmp093168_kpigr09_detcntperfv;
-    --DROP TABLE ${BD_STG}.tmp093168_kpigr09_detcntpermdb;
-    --DROP TABLE ${BD_STG}.tmp093168_kpigr09_cnorigen;
-    --DROP TABLE ${BD_STG}.tmp093168_kpigr09_cnorigent1851;
-    --DROP TABLE ${BD_STG}.tmp093168_kpigr09_cndestino1;
-    --DROP TABLE ${BD_STG}.tmp093168_kpigr09_cndestino2 ;
+    DROP TABLE ${BD_STG}.tmp093168_udjkpigr9;
+    DROP TABLE ${BD_STG}.tmp093168_kpigr9_periodos_compag;
+    DROP TABLE ${BD_STG}.tmp093168_kpigr09_detcntpertr;
+    DROP TABLE ${BD_STG}.tmp093168_kpigr09_detcntper1851;
+    DROP TABLE ${BD_STG}.tmp093168_kpigr09_detcntperfv;
+    DROP TABLE ${BD_STG}.tmp093168_kpigr09_detcntpermdb;
+    DROP TABLE ${BD_STG}.tmp093168_kpigr09_cnorigen;
+    DROP TABLE ${BD_STG}.tmp093168_kpigr09_cnorigent1851;
+    DROP TABLE ${BD_STG}.tmp093168_kpigr09_cndestino1;
+    DROP TABLE ${BD_STG}.tmp093168_kpigr09_cndestino2 ;
 
 SEL CURRENT_TIMESTAMP;
     
