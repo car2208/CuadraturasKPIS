@@ -39,8 +39,8 @@ KPI_01='K027012022'
 KPI_02='K027022022'
 FILE_KPI01='/work1/teradata/dat/093168/DIF_'${KPI_01}'_CAS100_TRANVSFVIR_'${DATE}'.unl'
 FILE_KPI02='/work1/teradata/dat/093168/DIF_'${KPI_02}'_CAS100_FVIRVSMODB_'${DATE}'.unl'
-FILE_KPI03='/work1/teradata/dat/093168/DIF_'${KPI_01}'_CAS100_TRANVSFVIR_'${DATE}'.unl'
-FILE_KPI04='/work1/teradata/dat/093168/DIF_'${KPI_02}'_CAS100_FVIRVSMODB_'${DATE}'.unl'
+FILE_KPI03='/work1/teradata/dat/093168/DIF_'${KPI_03}'_CAS100_TRANVSFVIR_'${DATE}'.unl'
+FILE_KPI04='/work1/teradata/dat/093168/DIF_'${KPI_04}'_CAS100_FVIRVSMODB_'${DATE}'.unl'
 
 
 rm -f ${FILE_KPI01}
@@ -85,7 +85,7 @@ SELECT
 	TRIM(x0.num_ruc) as num_ruc,
 	x0.per_pag as per_pago,
 	x0.num_formul,
-	x0.num_doc as num_ordope,
+	cast(x0.num_doc as bigint) as num_ordope,
 	x0.MTO_BASIMP as mto_gravado
 FROM ${BD_STG}.t7910pagorta x0 
 LEFT JOIN ${BD_STG}.ddp x1 ON x0.num_ruc = x1.ddp_numruc
@@ -124,7 +124,7 @@ SELECT
 		b.ind_presdj,
 		SUBSTR(a.per_pago,3,4)||SUBSTR(a.per_pago,1,2) as per_pago,
 		cast(a.num_formul as smallint) num_formul,
-		cast(a.NUM_ORDOPE as integer) num_ordope,
+		cast(a.NUM_ORDOPE as bigint) num_ordope,
 		a.MTO_GRAVADO 
 FROM ${BD_STG}.T7993CAS100DET a
 INNER JOIN ${BD_STG}.tmp093168_kpiperindj b ON a.num_sec = b.num_sec 
@@ -156,7 +156,7 @@ SELECT
 		b.ind_presdj,
 		SUBSTR(a.per_pago,3,4)||SUBSTR(a.per_pago,1,2) as per_pago,
 		cast(a.num_formul as smallint) num_formul,
-		cast(a.NUM_ORDOPE as integer) num_ordope,
+		cast(a.NUM_ORDOPE as bigint) num_ordope,
 		a.MTO_GRAVADO 
 FROM ${BD_STG}.T7993CAS100DET_MONGODB a
 INNER JOIN ${BD_STG}.tmp093168_kpiperindj b ON a.num_sec = b.num_sec 
@@ -324,7 +324,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr26_val_cndestino2 AS
 			SELECT
 			       x0.ind_presdj,
 				   case when x0.ind_presdj=0 then (select coalesce(sum(mto_origen),0) from ${BD_STG}.tmp093168_kpigr26_val_cnorigen) else 0 end as mto_origen,
-			       coalesce(x1.cant_comp_destino1,0) as mto_destino
+			       coalesce(x1.mto_destino1,0) as mto_destino
 			FROM
 			(
 				select y.ind_presdj,SUM(y.mto_origen) as mto_origen

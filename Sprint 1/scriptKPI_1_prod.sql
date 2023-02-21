@@ -10,7 +10,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_cantrecibos as
 	FROM BDDWESTG.t3639recibo
 	WHERE EXTRACT(YEAR FROM fec_emision_rec) = 2022
 	--AND FEC_EMISION_REC <= DATE '2022-10-27'
-	AND FEC_EMISION_REC <= DATE '2023-02-06'
+	AND FEC_EMISION_REC <= DATE '2023-02-16'
 	AND ind_estado_rec = '0'
 	AND cod_tipcomp = '01'
 ) WITH DATA NO PRIMARY INDEX;
@@ -25,7 +25,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_cantnotascredito as
 	WHERE EXTRACT(YEAR FROM fec_emision_nc) = 2022
 	AND ind_estado_nc = '0'
 	AND cod_tipcomp_ori = '01'
-	AND fec_emision_nc  <= DATE '2023-02-06'
+	AND fec_emision_nc  <= DATE '2023-02-16'
 ) WITH DATA NO PRIMARY INDEX;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
@@ -52,7 +52,7 @@ FROM
 			WHERE t03formulario = '0616' 
 			AND t03periodo between '202201' and '202212'
 			--AND t03f_presenta <= DATE '2022-10-27'
-			AND t03f_presenta <= DATE '2023-02-06'
+			AND t03f_presenta <= DATE '2023-02-16'
 		    GROUP BY 1,2,3
 		    
 		) t1

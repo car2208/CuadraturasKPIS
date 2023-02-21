@@ -46,7 +46,7 @@ AND num_formul = '0709'
 AND ind_actual = '1' 
 AND ind_estado = '0' 
 AND ind_proceso = '1'
-AND cast(fec_creacion as date) <= CAST('2023-02-08' AS DATE FORMAT 'YYYY-MM-DD')
+AND cast(fec_creacion as date) <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
 GROUP BY 1
 ) with data no primary INDEX ON COMMIT PRESERVE ROWS
 ;
@@ -60,7 +60,7 @@ FROM bddwestg.t5847ctldecl
 WHERE num_ejercicio = 2022
 AND num_formul = '0709' 
 AND ind_estado = '2'
-AND cast(fec_creacion as date) <= CAST('2023-02-08' AS DATE FORMAT 'YYYY-MM-DD')
+AND cast(fec_creacion as date) <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
 GROUP BY 1
 )  with data no primary INDEX ON COMMIT PRESERVE ROWS
 ;

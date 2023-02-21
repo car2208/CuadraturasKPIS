@@ -1,5 +1,3 @@
-
-
 /*
 DROP TABLE BDDWESTG.tmp093168_udjkpigr2;
 DROP TABLE BDDWESTG.tmp093168_kpigr2_periodos_ctaind;
@@ -34,7 +32,7 @@ SELECT t03periodo,
 FROM BDDWESTG.t03djcab
 WHERE t03formulario = '0601' 
 AND SUBSTR(t03periodo,1,4)='2022'
-AND t03f_presenta <=DATE '2023-02-06'
+AND t03f_presenta <=DATE '2023-02-16'
 GROUP BY 1,2,3
 ) AS t1 
 INNER JOIN BDDWESTG.t03djcab t2 ON t2.t03periodo = t1.t03periodo 

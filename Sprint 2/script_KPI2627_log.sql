@@ -107,256 +107,281 @@ CREATE MULTISET TABLE bddwestg.tmp093168_kpigr26_val_cndestino2 AS
 
 /********************INSERT EN TABLA FINAL***********************************/
     
-    DELETE FROM bddwestg.T11908DETKPITRIBINT 
-    WHERE COD_KPI='K027012022'  AND FEC_CARGA=CURRENT_DATE;
-
+  /********************INSERT EN TABLA FINAL***********************************/
     
- INSERT INTO bddwestg.T11908DETKPITRIBINT 
- (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO)
- SELECT '2022',z.ind_presdj,
-        'K027012022' ,
-         CURRENT_DATE,
-         SUM(z.cant_origen),
-         SUM(z.cant_destino)
- FROM
-  (
-   SELECT
-          x0.ind_presdj,
-       case when x0.ind_presdj=0 then (select sum(cant_comp_origen) from bddwestg.tmp093168_kpigr26_val_cnorigen) else 0 end as cant_origen,
-          coalesce(x1.cant_comp_destino1,0) as cant_destino
-   FROM bddwestg.tmp093168_kpigr26_val_cnorigen x0
-   LEFT JOIN bddwestg.tmp093168_kpigr26_val_cndestino1 x1 
-   ON x0.ind_presdj=x1.ind_presdj
-   WHERE cant_origen<>0 and cant_destino<>0
-  ) z
- GROUP BY 1,2,3,4
- ;
+    DELETE FROM BDDWESTG.T11908DETKPITRIBINT 
+    WHERE COD_KPI='K027012022'  AND FEC_CARGA=CURRENT_DATE;
+    
+    
+	INSERT INTO BDDWESTG.T11908DETKPITRIBINT 
+	(COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO)
+	SELECT '2022',z.ind_presdj,
+	       'K027012022' ,
+	        CURRENT_DATE,
+	        SUM(z.cant_origen),
+	        SUM(z.cant_destino)
+	FROM
+		(
+			SELECT
+			       x0.ind_presdj,
+				   case when x0.ind_presdj=0 then (select coalesce(sum(cant_comp_origen),0) from BDDWESTG.tmp093168_kpigr26_val_cnorigen) else 0 end as cant_origen,
+			       coalesce(x1.cant_comp_destino1,0) as cant_destino
+			FROM
+			(
+				select y.ind_presdj,SUM(y.cant_comp_origen) as cant_comp_origen
+				from
+					(
+						select * from BDDWESTG.tmp093168_kpigr26_val_cnorigen
+						union all select 1,0,0 from (select '1' agr1) a
+						union all select 0,0,0 from (select '0' agr0) b
+					) y group by 1
+			) x0
+			LEFT JOIN BDDWESTG.tmp093168_kpigr26_val_cndestino1 x1 
+			ON x0.ind_presdj=x1.ind_presdj
+
+		) z
+	GROUP BY 1,2,3,4
+	;
 
 
-
-    DELETE FROM bddwestg.T11908DETKPITRIBINT 
+    DELETE FROM BDDWESTG.T11908DETKPITRIBINT 
     WHERE COD_KPI='K027022022'  AND FEC_CARGA=CURRENT_DATE;
 
     
- INSERT INTO bddwestg.T11908DETKPITRIBINT 
- (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO)
- SELECT  '2022',z.ind_presdj,
-         'K027022022',
-         CURRENT_DATE,
-         SUM(z.cant_origen),
-         SUM(z.cant_destino)
- FROM
-  (
-   SELECT x0.ind_presdj,
-          x0.cant_comp_destino1 AS cant_origen,
-       case when x0.ind_presdj=0  then (select sum(cant_comp_destino2) from bddwestg.tmp093168_kpigr26_val_cndestino2) else 0 end AS cant_destino
-   FROM bddwestg.tmp093168_kpigr26_val_cndestino1 x0
-   LEFT JOIN bddwestg.tmp093168_kpigr26_val_cndestino2 x1 
-   ON x0.ind_presdj=x1.ind_presdj
-   WHERE cant_origen<>0 and cant_destino<>0
-  ) z
- GROUP BY 1,2,3,4
- ;
+	INSERT INTO BDDWESTG.T11908DETKPITRIBINT 
+	(COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO)
+	SELECT  '2022',z.ind_presdj,
+	        'K027022022',
+	        CURRENT_DATE,
+	        SUM(z.cant_origen),
+	        SUM(z.cant_destino)
+	FROM
+		(
+			SELECT x0.ind_presdj,
+			       x0.cant_comp_destino1 AS cant_origen,
+				   case when x0.ind_presdj=0  then (select coalesce(sum(cant_comp_destino2),0) from BDDWESTG.tmp093168_kpigr26_val_cndestino2) else 0 end AS cant_destino
+			FROM
+			(
+				select y.ind_presdj,SUM(y.cant_comp_destino1) as cant_comp_destino1
+				from
+					(
+						select * from BDDWESTG.tmp093168_kpigr26_val_cndestino1
+						union all select 1,0,0 from (select '1' agr1) a
+						union all select 0,0,0 from (select '0' agr0) b
+					) y group by 1
+			) x0
+			LEFT JOIN BDDWESTG.tmp093168_kpigr26_val_cndestino2 x1 
+			ON x0.ind_presdj=x1.ind_presdj
+		) z
+	GROUP BY 1,2,3,4
+	;
 
 
-/***********************************************27******************************************************************************************************/ 
+/***********************************************27******************************************************************************************************/	
 
- DELETE FROM bddwestg.T11908DETKPITRIBINT 
+	DELETE FROM BDDWESTG.T11908DETKPITRIBINT 
     WHERE COD_KPI='K026012022'  AND FEC_CARGA=CURRENT_DATE;
 
-
     
- INSERT INTO bddwestg.T11908DETKPITRIBINT 
- (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,MTO_REGORIGEN,MTO_REGIDESTINO)
- SELECT '2022',z.ind_presdj,
-        'K026012022' ,
-         CURRENT_DATE,
-         SUM(z.mto_origen),
-         SUM(z.mto_destino)
- FROM
-  (
-   SELECT
-          x0.ind_presdj,
-       case when x0.ind_presdj=0 then (select sum(mto_origen) from bddwestg.tmp093168_kpigr26_val_cnorigen) else 0 end as mto_origen,
-          coalesce(x1.cant_comp_destino1,0) as mto_destino
-   FROM bddwestg.tmp093168_kpigr26_val_cnorigen x0
-   LEFT JOIN bddwestg.tmp093168_kpigr26_val_cndestino1 x1 
-   ON x0.ind_presdj=x1.ind_presdj
-    WHERE mto_origen<>0 and mto_destino<>0
-  ) z
- GROUP BY 1,2,3,4
- ;
+	INSERT INTO BDDWESTG.T11908DETKPITRIBINT 
+	(COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,MTO_REGORIGEN,MTO_REGIDESTINO)
+	SELECT '2022',z.ind_presdj,
+	       'K026012022' ,
+	        CURRENT_DATE,
+	        SUM(z.mto_origen),
+	        SUM(z.mto_destino)
+	FROM
+		(
+			SELECT
+			       x0.ind_presdj,
+				   case when x0.ind_presdj=0 then (select coalesce(sum(mto_origen),0) from BDDWESTG.tmp093168_kpigr26_val_cnorigen) else 0 end as mto_origen,
+			       coalesce(x1.mto_destino1,0) as mto_destino
+			FROM
+			(
+				select y.ind_presdj,SUM(y.mto_origen) as mto_origen
+					from
+					(
+						select * from BDDWESTG.tmp093168_kpigr26_val_cnorigen
+						union all select 1,0,0 from (select '1' agr1) a
+						union all select 0,0,0 from (select '0' agr0) b
+					) y group by 1
+
+			) x0
+			LEFT JOIN BDDWESTG.tmp093168_kpigr26_val_cndestino1 x1 
+			ON x0.ind_presdj=x1.ind_presdj
+		) z
+	GROUP BY 1,2,3,4
+	;
 
 
-    DELETE FROM bddwestg.T11908DETKPITRIBINT 
+    DELETE FROM BDDWESTG.T11908DETKPITRIBINT 
     WHERE COD_KPI='K026022022'  AND FEC_CARGA=CURRENT_DATE;
 
     
- INSERT INTO bddwestg.T11908DETKPITRIBINT 
- (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,MTO_REGORIGEN,MTO_REGIDESTINO)
- SELECT  '2022',z.ind_presdj,
-         'K026022022',
-         CURRENT_DATE,
-         SUM(z.mto_origen),
-         SUM(z.mto_destino)
- FROM
-  (
-   SELECT x0.ind_presdj,
-          x0.mto_destino1 AS mto_origen,
-       case when x0.ind_presdj=0  then (select sum(mto_destino2) from bddwestg.tmp093168_kpigr26_val_cndestino2) else 0 end AS mto_destino
-   FROM bddwestg.tmp093168_kpigr26_val_cndestino1 x0
-   LEFT JOIN bddwestg.tmp093168_kpigr26_val_cndestino2 x1 
-   ON x0.ind_presdj=x1.ind_presdj
-   WHERE mto_origen<>0 and mto_destino<>0
-  ) z
- GROUP BY 1,2,3,4
- ;
-
+	INSERT INTO BDDWESTG.T11908DETKPITRIBINT 
+	(COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,MTO_REGORIGEN,MTO_REGIDESTINO)
+	SELECT  '2022',z.ind_presdj,
+	        'K026022022',
+	        CURRENT_DATE,
+	        SUM(z.mto_origen),
+	        SUM(z.mto_destino)
+	FROM
+		(
+			SELECT x0.ind_presdj,
+			       x0.mto_destino1 AS mto_origen,
+				   case when x0.ind_presdj=0  then (select coalesce(sum(mto_destino2),0) from BDDWESTG.tmp093168_kpigr26_val_cndestino2) else 0 end AS mto_destino
+			FROM 
+			(
+				select y.ind_presdj,SUM(y.mto_destino1) as mto_destino1
+					from
+					(
+						select * from BDDWESTG.tmp093168_kpigr26_val_cndestino1
+						union all select 1,0,0 from (select '1' agr1) a
+						union all select 0,0,0 from (select '0' agr0) b
+					) y group by 1
+			) x0
+			LEFT JOIN BDDWESTG.tmp093168_kpigr26_val_cndestino2 x1 
+			ON x0.ind_presdj=x1.ind_presdj
+		) z
+	GROUP BY 1,2,3,4
+	;
 
 
 /*=============================================================================*/
 /***********************Genera Detalle de Diferencias**************************/
-/*=============================================================================*/ 
+/*=============================================================================*/	
 
-
---DROP TABLE bddwestg.tmp093168_dif_K027012022 ;
-
-    CREATE MULTISET TABLE bddwestg.tmp093168_dif_K027012022 AS (
+DROP TABLE BDDWESTG.tmp093168_dif_K027012022	;
+    CREATE MULTISET TABLE BDDWESTG.tmp093168_dif_K027012022 AS (
      SELECT DISTINCT 
-     y0.num_ruc,
-     y0.per_pago,
-     y0.num_formul,
-     y0.num_ordope
- FROM (
-  SELECT   num_ruc,
-     per_pago,
-     num_formul,
-     num_ordope
-  FROM bddwestg.tmp093168_kpi26_detcpeval_tr
-  EXCEPT ALL
-  SELECT  num_ruc,
-     per_pago,
-     num_formul,
-     num_ordope
-  FROM bddwestg.tmp093168_kpi26_detcpeval_fv
- ) y0
- ) WITH DATA NO PRIMARY INDEX;
+					y0.num_ruc,
+					y0.per_pago,
+					y0.num_formul,
+					y0.num_ordope
+	FROM (
+		SELECT 		num_ruc,
+					per_pago,
+					num_formul,
+					num_ordope
+		FROM BDDWESTG.tmp093168_kpi26_detcpeval_tr
+		EXCEPT ALL
+		SELECT  num_ruc,
+					per_pago,
+					num_formul,
+					num_ordope
+		FROM BDDWESTG.tmp093168_kpi26_detcpeval_fv
+	) y0
+	) WITH DATA NO PRIMARY INDEX;
 
 
- --.EXPORT FILE /work1/teradata/dat/093168/DIF_K027012022_CAS100_TRANVSFVIR_20230208.unl;
-
- LOCK ROW FOR ACCESS
- SELECT * FROM bddwestg.tmp093168_dif_K027012022 
- ORDER BY num_ruc,per_pago;
+	LOCK ROW FOR ACCESS
+	SELECT * FROM BDDWESTG.tmp093168_dif_K027012022 
+	ORDER BY num_ruc,per_pago;
 
 
---DROP TABLE bddwestg.tmp093168_dif_K027022022 ;
 
- CREATE MULTISET TABLE bddwestg.tmp093168_dif_K027022022 AS (
- SELECT DISTINCT 
-   y0.num_ruc,
-     y0.per_pago,
-     y0.num_formul,
-     y0.num_ordope
- FROM (
-     SELECT  num_ruc,
-     per_pago,
-     num_formul,
-     num_ordope
-  FROM bddwestg.tmp093168_kpi26_detcpeval_fv
-  EXCEPT ALL
-  SELECT   num_ruc,
-     per_pago,
-     num_formul,
-     num_ordope
-  FROM bddwestg.tmp093168_kpi26_detcpeval_mdb
- ) y0
+DROP TABLE BDDWESTG.tmp093168_dif_K027022022	;
+	CREATE MULTISET TABLE BDDWESTG.tmp093168_dif_K027022022 AS (
+	SELECT DISTINCT 
+			y0.num_ruc,
+					y0.per_pago,
+					y0.num_formul,
+					y0.num_ordope
+	FROM (
+	    SELECT  num_ruc,
+					per_pago,
+					num_formul,
+					num_ordope
+		FROM BDDWESTG.tmp093168_kpi26_detcpeval_fv
+		EXCEPT ALL
+		SELECT   num_ruc,
+					per_pago,
+					num_formul,
+					num_ordope
+		FROM BDDWESTG.tmp093168_kpi26_detcpeval_mdb
+	) y0
     ) WITH DATA NO PRIMARY INDEX;
 
- 
- --.EXPORT FILE /work1/teradata/dat/093168/DIF_K027022022_CAS100_FVIRVSMODB_20230208.unl;
-
-
     LOCK ROW FOR ACCESS
- SELECT * FROM bddwestg.tmp093168_dif_K027022022
- ORDER BY num_ruc,per_pago;
-
+	SELECT * FROM BDDWESTG.tmp093168_dif_K027022022
+	ORDER BY num_ruc,per_pago;
 
 /********************************************************************************/
 --------------------------------------PARA EL 26----------------------------------
 
-     --DROP TABLE bddwestg.tmp093168_dif_K026012022 ;
-    CREATE MULTISET TABLE bddwestg.tmp093168_dif_K026012022 AS (
+
+DROP TABLE BDDWESTG.tmp093168_dif_K026012022	;
+
+    CREATE MULTISET TABLE BDDWESTG.tmp093168_dif_K026012022 AS (
      SELECT DISTINCT 
-     y0.num_ruc,
-     y0.per_pago,
-     y0.num_formul,
-     y0.num_ordope,
-     y0.mto_gravado
- FROM (
-  SELECT   num_ruc,
-     per_pago,
-     num_formul,
-     num_ordope,
-     mto_gravado
-  FROM bddwestg.tmp093168_kpi26_detcpeval_tr
-  EXCEPT ALL
-  SELECT   num_ruc,
-     per_pago,
-     num_formul,
-     num_ordope,
-     mto_gravado
-  FROM bddwestg.tmp093168_kpi26_detcpeval_fv
- ) y0
- ) WITH DATA NO PRIMARY INDEX;
+					y0.num_ruc,
+					y0.per_pago,
+					y0.num_formul,
+					y0.num_ordope,
+					y0.mto_gravado
+	FROM (
+		SELECT 		num_ruc,
+					per_pago,
+					num_formul,
+					num_ordope,
+					mto_gravado
+		FROM BDDWESTG.tmp093168_kpi26_detcpeval_tr
+		EXCEPT ALL
+		SELECT  	num_ruc,
+					per_pago,
+					num_formul,
+					num_ordope,
+					mto_gravado
+		FROM BDDWESTG.tmp093168_kpi26_detcpeval_fv
+	) y0
+	) WITH DATA NO PRIMARY INDEX;
 
 
+	LOCK ROW FOR ACCESS
+	SELECT * FROM BDDWESTG.tmp093168_dif_K026012022 
+	ORDER BY num_ruc,per_pago;
 
--- .EXPORT FILE /work1/teradata/dat/093168/DIF_K027012022_CAS100_TRANVSFVIR_20230208.unl;
 
-
- LOCK ROW FOR ACCESS
- SELECT * FROM bddwestg.tmp093168_dif_K026012022 
- ORDER BY num_ruc,per_pago;
-
- --DROP TABLE bddwestg.tmp093168_dif_K026022022 ;
- CREATE MULTISET TABLE bddwestg.tmp093168_dif_K026022022 AS (
- SELECT DISTINCT 
-   y0.num_ruc,
-     y0.per_pago,
-     y0.num_formul,
-     y0.num_ordope,
-     y0.mto_gravado
- FROM (
-     SELECT  num_ruc,
-     per_pago,
-     num_formul,
-     num_ordope,
-     mto_gravado
-  FROM bddwestg.tmp093168_kpi26_detcpeval_fv
-  EXCEPT ALL
-  SELECT   num_ruc,
-     per_pago,
-     num_formul,
-     num_ordope,
-     mto_gravado
-  FROM bddwestg.tmp093168_kpi26_detcpeval_mdb
- ) y0
+DROP TABLE BDDWESTG.tmp093168_dif_K026022022	;
+	CREATE MULTISET TABLE BDDWESTG.tmp093168_dif_K026022022 AS (
+	SELECT DISTINCT 
+			y0.num_ruc,
+					y0.per_pago,
+					y0.num_formul,
+					y0.num_ordope,
+					y0.mto_gravado
+	FROM (
+	    SELECT  num_ruc,
+					per_pago,
+					num_formul,
+					num_ordope,
+					mto_gravado
+		FROM BDDWESTG.tmp093168_kpi26_detcpeval_fv
+		EXCEPT ALL
+		SELECT   num_ruc,
+					per_pago,
+					num_formul,
+					num_ordope,
+					mto_gravado
+		FROM BDDWESTG.tmp093168_kpi26_detcpeval_mdb
+	) y0
     ) WITH DATA NO PRIMARY INDEX;
-
--- .EXPORT FILE /work1/teradata/dat/093168/DIF_K027022022_CAS100_FVIRVSMODB_20230208.unl;
 
 
     LOCK ROW FOR ACCESS
- SELECT * FROM bddwestg.tmp093168_dif_K026022022
- ORDER BY num_ruc,per_pago;
+	SELECT * FROM BDDWESTG.tmp093168_dif_K026022022
+	ORDER BY num_ruc,per_pago;
 
 
+/*********************************************************************************/
 
-DROP TABLE bddwestg.tmp093168_kpi26_detcpeval_tr;
-DROP TABLE bddwestg.tmp093168_kpi26_detcpeval_fv;
-DROP TABLE bddwestg.tmp093168_kpi26_detcpeval_mdb;
-DROP TABLE bddwestg.tmp093168_kpigr26_val_cnorigen;
-DROP TABLE bddwestg.tmp093168_kpigr26_val_cndestino1;
-DROP TABLE bddwestg.tmp093168_kpigr26_val_cndestino2 ;
+SEL CURRENT_TIMESTAMP;
+
+DROP TABLE BDDWESTG.tmp093168_kpi26_detcpeval_tr;
+DROP TABLE BDDWESTG.tmp093168_kpi26_detcpeval_fv;
+DROP TABLE BDDWESTG.tmp093168_kpi26_detcpeval_mdb;
+DROP TABLE BDDWESTG.tmp093168_kpigr26_val_cnorigen;
+DROP TABLE BDDWESTG.tmp093168_kpigr26_val_cndestino1;
+DROP TABLE BDDWESTG.tmp093168_kpigr26_val_cndestino2	;
+
 -

@@ -97,7 +97,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_udjkpigr8 as
   AND t2.t03nresumen = t1.t03nresumen
   AND t2.t03norden = t1.t03norden
 )
-WITH DATA UNIQUE PRIMARY INDEX (t03nabono,t03norden,t03formulario);
+WITH DATA PRIMARY INDEX (t03nabono,t03norden,t03formulario);
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell;
 

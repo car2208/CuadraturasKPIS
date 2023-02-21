@@ -58,16 +58,16 @@ if [ $? -ne 0 ]; then echo "J093168_KPIGRP04|err|`date +%Y%m%d+%H%M%S`" >>${FILE
 sh ${path_shell_TD}/J093168_KPIGRP05.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO} ${FECHA_SP1}
 if [ $? -ne 0 ]; then echo "J093168_KPIGRP05|err|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; else echo "J093168_KPIGRP05|ok|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; fi
 
-sh ${path_shell_TD}/J093168_KPIGRP06.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO} ${FECHA_SP1} ${FECHA_FV}
+sh ${path_shell_TD}/J093168_KPIGRP06.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO} ${FECHA_SP1}
 if [ $? -ne 0 ]; then echo "J093168_KPIGRP06|err|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; else echo "J093168_KPIGRP06|ok|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; fi
 
-sh ${path_shell_TD}/J093168_KPIGRP07.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO} ${FECHA_SP1} ${FECHA_FV}
+sh ${path_shell_TD}/J093168_KPIGRP07.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO} ${FECHA_SP1}
 if [ $? -ne 0 ]; then echo "J093168_KPIGRP07|err|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; else echo "J093168_KPIGRP07|ok|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; fi
 
-sh ${path_shell_TD}/J093168_KPIGRP08.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO} ${FECHA_SP1} ${FECHA_FV}
+sh ${path_shell_TD}/J093168_KPIGRP08.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO} ${FECHA_SP1}
 if [ $? -ne 0 ]; then echo "J093168_KPIGRP08|err|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; else echo "J093168_KPIGRP08|ok|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; fi
 
-sh ${path_shell_TD}/J093168_KPIGRP09.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO} ${FECHA_SP1} ${FECHA_FV}
+sh ${path_shell_TD}/J093168_KPIGRP09.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO} ${FECHA_SP1}
 if [ $? -ne 0 ]; then echo "J093168_KPIGRP09|err|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; else echo "J093168_KPIGRP09|ok|`date +%Y%m%d+%H%M%S`" >>${FILELOG}; fi
 
 sh ${path_shell_TD}/J093168_KPIGRP10.sh ${server_TD} ${username_TD} ${walletPwd_TD} ${BD_DQ} ${BD_STG} ${path_log_TD} ${PERIODO} ${FECHA_SP1} ${FECHA_FV}
