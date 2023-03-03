@@ -19,7 +19,7 @@ CREATE MULTISET TABLE bddwestg.tmp093168_udjkpigr8 as
     FROM bddwestg.t03djcab
     WHERE t03formulario = '0601' 
     AND t03periodo BETWEEN '202201' and '202212'
-    AND t03f_presenta <= DATE '2023-02-27'
+    AND t03f_presenta <= DATE '2023-02-24'
     GROUP BY 1,2,3
   ) AS t1 
   INNER JOIN bddwestg.t03djcab t2 ON t2.t03periodo = t1.t03periodo 
@@ -116,7 +116,7 @@ CREATE MULTISET TABLE bddwestg.tmp093168_kpigr8_periodos_compagfilter AS
         WHERE EXTRACT(YEAR FROM fec_emision_rec) = 2022
         AND ind_estado_rec = '0'
         AND cod_tipcomp IN ('01','02')
-        AND fec_emision_rec <= DATE '2023-02-27'
+        AND fec_emision_rec <= DATE '2023-02-24'
     ) rxh 
     ON x0.num_rucs=rxh.num_ruc and x0.num_serie=rxh.num_serie and x0.num_comprob=rxh.num_comprob
     WHERE x0.ind_com_pag='R'
@@ -139,7 +139,7 @@ CREATE MULTISET TABLE bddwestg.tmp093168_kpigr8_periodos_compagfilter AS
         WHERE EXTRACT(YEAR FROM fec_emision_nc) = 2022
         AND ind_estado_nc = '0'
         AND cod_tipcomp_ori = '01'
-        AND fec_emision_nc <= DATE '2023-02-27'
+        AND fec_emision_nc <= DATE '2023-02-24'
     ) nc ON y0.num_rucs=nc.num_ruc and y0.num_serie=nc.num_serie and y0.num_comprob=nc.num_comprob
     WHERE y0.ind_com_pag='N'
     UNION ALL

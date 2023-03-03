@@ -40,7 +40,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
       AND crt_codtri = '030401'
       AND crt_indaju = '0'
       AND crt_indpag IN (1,5)
-      AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+      AND crt_fecpag <= CAST('2023-02-27' AS DATE FORMAT 'YYYY-MM-DD')
       AND crt_estado <> '02'
     UNION
     SELECT crt_numruc numruc, crt_perpag perpag, crt_formul formul, crt_ndocpa norden
@@ -50,7 +50,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
       AND crt_tiptra = '2962'
       AND crt_indaju = '1'
       AND crt_indpag IN (1,5)
-      AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+      AND crt_fecpag <= CAST('2023-02-27' AS DATE FORMAT 'YYYY-MM-DD')
       AND crt_estado <> '02'
 
   ) WITH DATA NO PRIMARY INDEX;
@@ -179,7 +179,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
    AND hsf_codtri = '030401'
    AND hsf_tiptra = '1041'
    AND hsf_tipcta = '01'
-   AND hsf_fecsaf <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD');
+   AND hsf_fecsaf <= CAST('2023-02-27' AS DATE FORMAT 'YYYY-MM-DD');
 
 
 
@@ -192,7 +192,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
    AND dbt_codtri = '030401'
    AND dbt_tiptra = 1011
    AND dbt_indrec = 0
-   AND dbt_fecdoc <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+   AND dbt_fecdoc <= CAST('2023-02-27' AS DATE FORMAT 'YYYY-MM-DD')
    AND doc_formul = dbt_formul
    AND doc_numdoc = dbt_numdoc
    AND doc_codcas = 347
@@ -207,7 +207,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
    WHERE dbt_perpag IN (202201,202202,202203,202204,202205,202206,202207,202208,202209,202210,202211,202212)
    AND dbt_codtri = '030401'
    AND dbt_tiptra = 1011
-   AND dbt_fecdoc <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+   AND dbt_fecdoc <= CAST('2023-02-27' AS DATE FORMAT 'YYYY-MM-DD')
    AND dbt_formul = db2_formul
    AND dbt_numdoc = db2_numdoc
    AND dbt_codtri = db2_codtri
@@ -220,7 +220,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
    AND crt_tiptra = '1272'
    AND crt_indaju = '1'
    AND crt_imptri > 0
-   AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD');
+   AND crt_fecpag <= CAST('2023-02-27' AS DATE FORMAT 'YYYY-MM-DD');
 
   
   -- BLOQUE05
@@ -282,7 +282,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
         WHERE t03periodo IN (202201,202202,202203,202204,202205,202206,202207,202208,202209,202210,202211,202212)
         AND t03formulario IN ('0616','0116') 
         AND t03rechazado = '0'
-        AND t03f_presenta <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+        AND t03f_presenta <= CAST('2023-02-27' AS DATE FORMAT 'YYYY-MM-DD')
 
      ) WITH DATA NO PRIMARY INDEX ;
 
@@ -324,7 +324,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
        AND crt_indpag IN (1,5)
        AND crt_estado <> '02'
        AND crt_imptri > 0
-       AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+       AND crt_fecpag <= CAST('2023-02-27' AS DATE FORMAT 'YYYY-MM-DD')
          
      ) WITH DATA NO PRIMARY INDEX ;
 
@@ -442,7 +442,7 @@ DROP TABLE BDDWESTG.TMP_KPI06_DIF_FVIRNOMODB;
      AND crt_indaju = '1'
      AND crt_tiptra = '1472'
      AND crt_imptri > 0
-     AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD');
+     AND crt_fecpag <= CAST('2023-02-27' AS DATE FORMAT 'YYYY-MM-DD');
    
    -- Bloque 04
      --t_origen_06

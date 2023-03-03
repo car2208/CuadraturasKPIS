@@ -212,6 +212,7 @@ AS(
   FROM ${BD_STG}.t5377cas111 x0
   INNER JOIN ${BD_STG}.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
   WHERE x0.tip_doc = '06'
+  AND x0.periodo<>'13${PERIODO}'
 ) WITH DATA NO PRIMARY INDEX ; 
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell;
@@ -234,6 +235,7 @@ AS(
   FROM ${BD_STG}.T5377CAS111_MONGODB x0
   INNER JOIN ${BD_STG}.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
   WHERE x0.COD_TIPDOC ='06'
+  AND x0.num_perservicio<>'13${PERIODO}'
 ) WITH DATA NO PRIMARY INDEX;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 

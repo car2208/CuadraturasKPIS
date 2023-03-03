@@ -42,7 +42,7 @@ KPI_02='K007022022'
 PATH_SALIDA_PLANOS='/work1/teradata/dat/093168'
 
 FILE_KPI01=${PATH_SALIDA_PLANOS}'/DIF_'${KPI_01}'_CAS128_TRANVSFVIR_'${DATE}'.unl'
-FILE_KPI02=${PATH_SALIDA_PLANOS}'/DIF_'${KPI_01}'_CAS128_FVIRVSMODB_'${DATE}'.unl'
+FILE_KPI02=${PATH_SALIDA_PLANOS}'/DIF_'${KPI_02}'_CAS128_FVIRVSMODB_'${DATE}'.unl'
 
 NOM_SCRIPT='J093168_KPIGRP07.sh'
 
@@ -659,7 +659,7 @@ SEL CURRENT_TIMESTAMP;
 	CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr07_detcntpermdb
     AS(	
 
-	SELECT 
+	SELECT DISTINCT
 		  x1.num_ruc,
 	      substr(num_perpago,3,4)||substr(num_perpago,1,2) as periodo,
 	      cast(x0.cod_formul as smallint) as cod_formul,

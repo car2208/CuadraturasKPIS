@@ -46,7 +46,7 @@ TBL_T03=${BD_STG}'.T03DJCAB_DEPEN'
 TBL_T04=${BD_STG}'.T04DJDET_DEPEN'
 TBL_DEVOL=${BD_STG}'.devoluciones'
 TBL_T869=${BD_STG}'.t869rei_cab'
-TBL_T1651=${BD_STG}'.t1651sol_comp' 
+TBL_T1651=${BD_STG}'.t1651sol_comp'
 TBL_T3386=${BD_STG}'.t3386doc_deu_com'
 TBL_CAB_PRE_RES=${BD_STG}'.cab_pre_res'
 TBL_T1374=${BD_STG}'.T1374pag_rta'
@@ -66,7 +66,7 @@ KPI_02='K006022022'
 PATH_SALIDA_PLANOS='/work1/teradata/dat/093168'
 
 FILE_KPI01=${PATH_SALIDA_PLANOS}'/DIF_'${KPI_01}'_CAS127_TRANVSFVIR_'${DATE}'.unl'
-FILE_KPI02=${PATH_SALIDA_PLANOS}'/DIF_'${KPI_01}'_CAS127_FVIRVSMODB_'${DATE}'.unl'
+FILE_KPI02=${PATH_SALIDA_PLANOS}'/DIF_'${KPI_02}'_CAS127_FVIRVSMODB_'${DATE}'.unl'
 
 
 rm -f ${FILE_01}
@@ -781,7 +781,7 @@ SEL CURRENT_TIMESTAMP;
     AS(	
 
 	SELECT 
-		  x1.num_ruc,
+		DISTINCT  x1.num_ruc,
 	      substr(num_perpago,3,4)||substr(num_perpago,1,2) as periodo,
 	      cast(x0.cod_formul as smallint) as cod_formul,
 	      x0.num_numorden as num_ordope,

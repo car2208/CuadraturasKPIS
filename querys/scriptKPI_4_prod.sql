@@ -30,7 +30,7 @@ SELECT  t03periodo,
 FROM BDDWESTG.t03djcab
 WHERE t03formulario = '0601' 
 AND  t03periodo between '202201' and '202212'
-AND t03f_presenta <= DATE '2023-02-27'
+AND t03f_presenta <= DATE '2023-02-24'
 GROUP BY 1,2,3
 ) AS t1 
 INNER JOIN BDDWESTG.t03djcab t2 ON t2.t03periodo = t1.t03periodo 

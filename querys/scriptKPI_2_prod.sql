@@ -32,7 +32,7 @@ SELECT t03periodo,
 FROM BDDWESTG.t03djcab
 WHERE t03formulario = '0601' 
 AND SUBSTR(t03periodo,1,4)='2022'
-AND t03f_presenta <=DATE '2023-02-27'
+AND t03f_presenta <=DATE '2023-02-24'
 GROUP BY 1,2,3
 ) AS t1 
 INNER JOIN BDDWESTG.t03djcab t2 ON t2.t03periodo = t1.t03periodo 
@@ -168,7 +168,7 @@ AS(
 	SELECT DISTINCT x1.num_ruc,COALESCE(x1.ind_presdj,0) as ind_presdj,
 					x0.num_doc,
 					x0.periodo
-	FROM BDDWESTG.t5373cas107 x0
+	FROM BDDWESTG.t5373cas107_2802 x0
 	INNER JOIN BDDWESTG.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
 	WHERE x0.tip_comp = ' '
 	AND x0.num_serie = ' '

@@ -30,7 +30,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_udjkpigr3 as
     FROM BDDWESTG.t03djcab
     WHERE t03formulario = '0601' 
     AND t03periodo BETWEEN '202201' AND '202212'
-    AND t03f_presenta <= DATE '2023-02-27'
+    AND t03f_presenta <= DATE '2023-02-24'
     GROUP BY 1,2,3
   ) AS t1 
   INNER JOIN BDDWESTG.t03djcab t2 ON t2.t03periodo = t1.t03periodo 
@@ -94,7 +94,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_udj_f616_kpigr3 as
   FROM BDDWESTG.t03djcab
   WHERE t03formulario = '0616' 
   AND t03periodo BETWEEN '202201' AND '202212'
-  AND t03f_presenta<= DATE '2023-02-27'
+  AND t03f_presenta<= DATE '2023-02-24'
   GROUP BY 1,2,3
   ) AS t1 
   INNER JOIN BDDWESTG.t03djcab t2 ON t2.t03periodo = t1.t03periodo 

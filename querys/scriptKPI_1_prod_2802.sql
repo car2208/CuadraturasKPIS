@@ -10,7 +10,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_cantrecibos as
 	FROM BDDWESTG.t3639recibo
 	WHERE EXTRACT(YEAR FROM fec_emision_rec) = 2022
 	--AND FEC_EMISION_REC <= DATE '2022-10-27'
-	AND FEC_EMISION_REC <= DATE '2023-02-27'
+	AND fec_registro <= DATE '2023-02-24'
 	AND ind_estado_rec = '0'
 	AND cod_tipcomp = '01'
 ) WITH DATA NO PRIMARY INDEX;
@@ -25,10 +25,8 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_cantnotascredito as
 	WHERE EXTRACT(YEAR FROM fec_emision_nc) = 2022
 	AND ind_estado_nc = '0'
 	AND cod_tipcomp_ori = '01'
-	AND fec_emision_nc  <= DATE '2023-02-27'
+	AND fec_registro  <= DATE '2023-02-24'
 ) WITH DATA NO PRIMARY INDEX;
-
-.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
 /*******************Última DJ******************/
 
@@ -52,7 +50,7 @@ FROM
 			WHERE t03formulario = '0616' 
 			AND t03periodo between '202201' and '202212'
 			--AND t03f_presenta <= DATE '2022-10-27'
-			AND t03f_presenta <= DATE '2023-02-27'
+			AND t03f_presenta <= DATE '2023-02-24'
 		    GROUP BY 1,2,3
 		    
 		) t1
@@ -160,7 +158,7 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_detcantrxhefv
 AS(
 	SELECT DISTINCT x1.num_ruc,COALESCE(x1.ind_presdj,0) as ind_presdj,
 					x0.num_serie,x0.tip_comp,x0.num_comp
-	FROM BDDWESTG.t5373cas107 x0
+	FROM BDDWESTG.t5373cas107_2802 x0
 	INNER JOIN BDDWESTG.tmp093168_kpiperindj x1 ON x0.num_sec = x1.num_sec
 	WHERE x0.tip_comp in ('02','07')
 	AND SUBSTR(x0.num_serie,1,1) = 'E'
