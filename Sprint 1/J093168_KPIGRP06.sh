@@ -855,84 +855,6 @@ SEL CURRENT_TIMESTAMP;
   
   .IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
-
-/************************ INSERTA CONTEOS A TABLAS DE DETALLE **************************/
-
- DELETE FROM ${BD_DQ}.T11908DETKPITRIBINT  
-  WHERE COD_KPI='${KPI_01}' AND FEC_CARGA=CURRENT_DATE;
-
-  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
-
-  INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT 
-  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO)
-  SELECT  '${PERIODO}',
-          z.ind_presdj,
-         '${KPI_01}',
-          CURRENT_DATE,
-          SUM(z.cant_origen),
-          SUM(z.cant_destino)
-  FROM
-    (
-      SELECT
-             x0.ind_presdj,
-             case when x0.ind_presdj=0 then (select coalesce(sum(cant_per_origen),0) from ${BD_STG}.tmp093168_kpigr06_cnorigen) else 0 end as cant_origen,
-             coalesce(x1.cant_per_destino1,0) as cant_destino
-      FROM 
-      (
-          select y.ind_presdj,SUM(y.cant_per_origen) as cant_per_origen
-          from
-          (
-            select * from ${BD_STG}.tmp093168_kpigr06_cnorigen
-            union all select 1,0 from (select '1' agr1) a
-            union all select 0,0 from (select '0' agr0) b
-          ) y group by 1
-      ) x0
-      LEFT JOIN ${BD_STG}.tmp093168_kpigr06_cndestino1 x1 
-      ON x0.ind_presdj=x1.ind_presdj
-    ) z
-  GROUP BY 1,2,3,4
-  ;
-
-  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
-
-
-  DELETE FROM ${BD_DQ}.T11908DETKPITRIBINT 
-  WHERE COD_KPI='${KPI_02}' AND FEC_CARGA=CURRENT_DATE;
-
-  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
-
-
-  INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT  
-  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO)
-  SELECT  '${PERIODO}',
-          z.ind_presdj,
-          '${KPI_02}',
-          CURRENT_DATE,
-          SUM(z.cant_origen),
-          SUM(z.cant_destino)
-  FROM
-    (
-      SELECT x0.ind_presdj,
-             x0.cant_per_destino1 AS cant_origen,
-             case when x0.ind_presdj=0  then (select coalesce(sum(cant_per_destino2),0) from ${BD_STG}.tmp093168_kpigr06_cndestino2) else 0 end AS cant_destino
-      FROM 
-      (
-          select y.ind_presdj,SUM(y.cant_per_destino1) as cant_per_destino1
-          from
-          (
-            select * from ${BD_STG}.tmp093168_kpigr06_cndestino1
-            union all select 1,0 from (select '1' agr1) a
-            union all select 0,0 from (select '0' agr0) b
-          ) y group by 1
-      ) x0
-      LEFT JOIN ${BD_STG}.tmp093168_kpigr06_cndestino2 x1 
-      ON x0.ind_presdj=x1.ind_presdj
-    ) z
-  GROUP BY 1,2,3,4
-  ;
-
-  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
-
 /*=============================================================================*/
 /***********************Genera Detalle de Diferencias**************************/
 /*=============================================================================*/	
@@ -985,6 +907,79 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02}	;
     ) WITH DATA NO PRIMARY INDEX;
 	
 	.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
+
+/************************ INSERTA CONTEOS A TABLAS DE DETALLE **************************/
+
+ DELETE FROM ${BD_DQ}.T11908DETKPITRIBINT  
+  WHERE COD_KPI='${KPI_01}' AND FEC_CARGA=CURRENT_DATE;
+
+  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+  INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT 
+  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF)
+	SELECT
+		'${PERIODO}',
+		x0.ind_presdj,
+		'${KPI_01}',
+		CURRENT_DATE,
+		case when x0.ind_presdj=0 then (select coalesce(sum(cant_per_origen),0) from ${BD_STG}.tmp093168_kpigr06_cnorigen) else 0 end as cant_origen,
+		coalesce(x1.cant_per_destino1,0) as cant_destino,
+		case when x0.ind_presdj=0 then 
+        case when (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01})=0 then 1 else 0 end 
+        end as ind_incuniv,
+        case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01}) END as cnt_regdif
+	FROM 
+	(
+		select y.ind_presdj,SUM(y.cant_per_origen) as cant_per_origen
+		from
+		(
+		select * from ${BD_STG}.tmp093168_kpigr06_cnorigen
+		union all select 1,0 from (select '1' agr1) a
+		union all select 0,0 from (select '0' agr0) b
+		) y group by 1
+	) x0
+	LEFT JOIN ${BD_STG}.tmp093168_kpigr06_cndestino1 x1 
+	ON x0.ind_presdj=x1.ind_presdj
+   ;
+
+  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+
+  DELETE FROM ${BD_DQ}.T11908DETKPITRIBINT 
+  WHERE COD_KPI='${KPI_02}' AND FEC_CARGA=CURRENT_DATE;
+
+  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+
+  INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT  
+  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF)
+     SELECT '${PERIODO}',
+			x0.ind_presdj,
+			'${KPI_02}',
+			CURRENT_DATE,
+             x0.cant_per_destino1 AS cant_origen,
+             case when x0.ind_presdj=0  then (select coalesce(sum(cant_per_destino2),0) from ${BD_STG}.tmp093168_kpigr06_cndestino2) else 0 end AS cant_destino,
+			 case when x0.ind_presdj=0 then 
+        	case when (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_02})=0 then 1 else 0 end 
+        	end as ind_incuniv,
+       		case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_02}) END as cnt_regdif
+      FROM 
+      (
+          select y.ind_presdj,SUM(y.cant_per_destino1) as cant_per_destino1
+          from
+          (
+            select * from ${BD_STG}.tmp093168_kpigr06_cndestino1
+            union all select 1,0 from (select '1' agr1) a
+            union all select 0,0 from (select '0' agr0) b
+          ) y group by 1
+      ) x0
+      LEFT JOIN ${BD_STG}.tmp093168_kpigr06_cndestino2 x1 
+      ON x0.ind_presdj=x1.ind_presdj
+    ;
+
+  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+
     
 /*********************************************************************/
     .EXPORT FILE ${FILE_KPI01};

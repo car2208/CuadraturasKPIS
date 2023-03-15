@@ -9,7 +9,7 @@
     AND crt_codtri = '030501'
     AND crt_indaju = '0'
     AND crt_indpag IN (1,5)
-    AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+    AND crt_fecpag <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD')
     AND crt_estado <> '02'
   UNION
   SELECT crt_numruc numruc, crt_perpag perpag, crt_formul formul, crt_ndocpa numdoc
@@ -19,7 +19,7 @@
     AND crt_tiptra = '2962'
     AND crt_indaju = '1'
     AND crt_indpag IN (1,5)
-    AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+    AND crt_fecpag <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD')
     AND crt_estado <> '02'                
  ) WITH DATA NO PRIMARY INDEX;
 
@@ -35,7 +35,7 @@
      AND crt_tiptra = '1472'
      AND crt_indaju = '1'
      AND crt_imptri > 0
-     AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+     AND crt_fecpag <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD')
  ) WITH DATA NO PRIMARY INDEX;
 
 
@@ -177,7 +177,7 @@
      AND crt_indpag IN (1,5)
      AND crt_estado <> '02'
      AND crt_imptri > 0
-     AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+     AND crt_fecpag <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD')
    GROUP BY 1,2,3,4
 
  ) WITH DATA NO PRIMARY INDEX ;
@@ -274,7 +274,7 @@
     AND crt_tiptra = '1472'
     AND crt_indaju = '1'
     AND crt_imptri > 0
-    AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+    AND crt_fecpag <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD')
  ) WITH DATA NO PRIMARY INDEX;
 
  INSERT INTO  BDDWESTG.TMP_KPI07_SIRATMEPECO_01
@@ -418,74 +418,6 @@
     GROUP BY 1
   ) WITH DATA NO PRIMARY INDEX;
 
-
-/************************ INSERTA CONTEOS A TABLAS DE DETALLE **************************/
-
- DELETE FROM BDDWESTG.T11908DETKPITRIBINT  
-  WHERE COD_KPI='K007012022' AND FEC_CARGA=CURRENT_DATE;
-
-  INSERT INTO BDDWESTG.T11908DETKPITRIBINT 
-  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO)
-  SELECT  '2022',
-          z.ind_presdj,
-         'K007012022',
-          CURRENT_DATE,
-          SUM(z.cant_origen),
-          SUM(z.cant_destino)
-  FROM
-    (
-      SELECT
-             x0.ind_presdj,
-             case when x0.ind_presdj=0 then (select coalesce(sum(cant_per_origen),0) from BDDWESTG.tmp093168_kpigr07_cnorigen) else 0 end as cant_origen,
-             coalesce(x1.cant_per_destino1,0) as cant_destino
-      FROM 
-      (
-          select y.ind_presdj,SUM(y.cant_per_origen) as cant_per_origen
-          from
-          (
-            select * from BDDWESTG.tmp093168_kpigr07_cnorigen
-            union all select 1,0 from (select '1' agr1) a
-            union all select 0,0 from (select '0' agr0) b
-          ) y group by 1
-      ) x0
-      LEFT JOIN BDDWESTG.tmp093168_kpigr07_cndestino1 x1 
-      ON x0.ind_presdj=x1.ind_presdj
-    ) z
-  GROUP BY 1,2,3,4
-  ;
-
-  DELETE FROM BDDWESTG.T11908DETKPITRIBINT 
-  WHERE COD_KPI='K007022022' AND FEC_CARGA=CURRENT_DATE;
-
-  INSERT INTO BDDWESTG.T11908DETKPITRIBINT  
-  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO)
-  SELECT  '2022',
-          z.ind_presdj,
-          'K007022022',
-          CURRENT_DATE,
-          SUM(z.cant_origen),
-          SUM(z.cant_destino)
-  FROM
-    (
-      SELECT x0.ind_presdj,
-             x0.cant_per_destino1 AS cant_origen,
-             case when x0.ind_presdj=0  then (select coalesce(sum(cant_per_destino2),0) from BDDWESTG.tmp093168_kpigr07_cndestino2) else 0 end AS cant_destino
-      FROM 
-      (
-          select y.ind_presdj,SUM(y.cant_per_destino1) as cant_per_destino1
-          from
-          (
-            select * from BDDWESTG.tmp093168_kpigr07_cndestino1
-            union all select 1,0 from (select '1' agr1) a
-            union all select 0,0 from (select '0' agr0) b
-          ) y group by 1
-      ) x0
-      LEFT JOIN BDDWESTG.tmp093168_kpigr07_cndestino2 x1 
-      ON x0.ind_presdj=x1.ind_presdj
-    ) z
-  GROUP BY 1,2,3,4
-  ;
-
 /*=============================================================================*/
 /***********************Genera Detalle de Diferencias**************************/
 /*=============================================================================*/ 
@@ -521,6 +453,69 @@
           FROM BDDWESTG.tmp093168_kpigr07_detcntpermdb
    ) y0
       ) WITH DATA NO PRIMARY INDEX;
+
+
+/************************ INSERTA CONTEOS A TABLAS DE DETALLE **************************/
+
+ DELETE FROM BDDWESTG.T11908DETKPITRIBINT  
+  WHERE COD_KPI='K007012022' AND FEC_CARGA=CURRENT_DATE;
+
+  INSERT INTO BDDWESTG.T11908DETKPITRIBINT 
+  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF)
+      SELECT
+              '2022',
+              x0.ind_presdj,
+             'K007012022',
+              CURRENT_DATE,
+             case when x0.ind_presdj=0 then (select coalesce(sum(cant_per_origen),0) from BDDWESTG.tmp093168_kpigr07_cnorigen) else 0 end as cant_origen,
+             coalesce(x1.cant_per_destino1,0) as cant_destino,
+             case when x0.ind_presdj=0 then 
+        case when (select count(*) from BDDWESTG.tmp093168_dif_K007012022)=0 then 1 else 0 end 
+        end as ind_incuniv,
+        case when x0.ind_presdj=0 then (select count(*) from BDDWESTG.tmp093168_dif_K007012022) END as cnt_regdif
+      FROM 
+      (
+          select y.ind_presdj,SUM(y.cant_per_origen) as cant_per_origen
+          from
+          (
+            select * from BDDWESTG.tmp093168_kpigr07_cnorigen
+            union all select 1,0 from (select '1' agr1) a
+            union all select 0,0 from (select '0' agr0) b
+          ) y group by 1
+      ) x0
+      LEFT JOIN BDDWESTG.tmp093168_kpigr07_cndestino1 x1 
+      ON x0.ind_presdj=x1.ind_presdj
+  ;
+
+  DELETE FROM BDDWESTG.T11908DETKPITRIBINT 
+  WHERE COD_KPI='K007022022' AND FEC_CARGA=CURRENT_DATE;
+
+  INSERT INTO BDDWESTG.T11908DETKPITRIBINT  
+  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF)
+      SELECT '2022',
+          x0.ind_presdj,
+          'K007022022',
+          CURRENT_DATE,
+             x0.cant_per_destino1 AS cant_origen,
+             case when x0.ind_presdj=0  then (select coalesce(sum(cant_per_destino2),0) from BDDWESTG.tmp093168_kpigr07_cndestino2) else 0 end AS cant_destino,
+            case when x0.ind_presdj=0 then 
+          case when (select count(*) from BDDWESTG.tmp093168_dif_K007022022)=0 then 1 else 0 end 
+          end as ind_incuniv,
+          case when x0.ind_presdj=0 then (select count(*) from BDDWESTG.tmp093168_dif_K007022022) END as cnt_regdif  
+      FROM 
+      (
+          select y.ind_presdj,SUM(y.cant_per_destino1) as cant_per_destino1
+          from
+          (
+            select * from BDDWESTG.tmp093168_kpigr07_cndestino1
+            union all select 1,0 from (select '1' agr1) a
+            union all select 0,0 from (select '0' agr0) b
+          ) y group by 1
+      ) x0
+      LEFT JOIN BDDWESTG.tmp093168_kpigr07_cndestino2 x1 
+      ON x0.ind_presdj=x1.ind_presdj
+  ;
+
 
     
  LOCK ROW FOR ACCESS

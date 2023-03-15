@@ -341,8 +341,12 @@ DROP TABLE ${BD_STG}.tmp093168_kpigr03_cnorigen;
 .label ok;
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr03_cnorigen AS
 (
-  SELECT ind_presdj,count(per_decla) as cant_per_origen
-  FROM ${BD_STG}.tmp093168_kpigr03_detcntpertr
+  SELECT y.ind_presdj,count(y.per_decla) as cant_per_origen
+  FROM (
+    SELECT 
+    DISTINCT num_ruc,ind_presdj,num_docide_empl,per_decla
+    FROM ${BD_STG}.tmp093168_kpigr03_detcntpertr
+  ) y
   GROUP BY 1
 ) WITH DATA NO PRIMARY INDEX;
 
@@ -385,92 +389,32 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr03_cndestino2 AS
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
-
-/********************INSERT EN TABLA FINAL***********************************/
-
-  DELETE FROM ${BD_DQ}.T11908DETKPITRIBINT 
-  WHERE COD_KPI='${KPI_01}' AND FEC_CARGA=CURRENT_DATE;
-
-  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
-
-  INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT 
-  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO)
-  SELECT  '${PERIODO}',
-          z.ind_presdj,
-         '${KPI_01}',
-          CURRENT_DATE,
-          SUM(z.cant_origen),
-          SUM(z.cant_destino)
-  FROM
-    (
-      SELECT
-             x0.ind_presdj,
-             case when x0.ind_presdj=0 then 
-                      (select coalesce(sum(cant_per_origen),0) from ${BD_STG}.tmp093168_kpigr03_cnorigen) 
-            else 0 end as cant_origen,
-             coalesce(x1.cant_per_destino1,0) as cant_destino
-      FROM 
-      (
-          select y.ind_presdj,SUM(y.cant_per_origen) as cant_per_origen
-          from
-          (
-            select * from ${BD_STG}.tmp093168_kpigr03_cnorigen
-            union all select 1,0 from (select '1' agr1) a
-            union all select 0,0 from (select '0' agr0) b
-          ) y group by 1
-      )  x0
-      LEFT JOIN ${BD_STG}.tmp093168_kpigr03_cndestino1 x1 
-      ON x0.ind_presdj=x1.ind_presdj
-    ) z
-  GROUP BY 1,2,3,4
-  ;
-
-  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
-
-  DELETE FROM ${BD_DQ}.T11908DETKPITRIBINT 
-  WHERE COD_KPI='${KPI_02}' AND FEC_CARGA=CURRENT_DATE;
-
-  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
-
-  INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT 
-  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO)
-  SELECT  '${PERIODO}',
-          z.ind_presdj,
-          '${KPI_02}',
-          CURRENT_DATE,
-          SUM(z.cant_origen),
-          SUM(z.cant_destino)
-  FROM
-    (
-      SELECT x0.ind_presdj,
-             x0.cant_per_destino1 AS cant_origen,
-             case when x0.ind_presdj=0  then 
-                      (select coalesce(sum(cant_per_destino2),0) from ${BD_STG}.tmp093168_kpigr03_cndestino2)
-             else 0 end AS cant_destino
-      FROM 
-      (
-        select y.ind_presdj,SUM(y.cant_per_destino1) as cant_per_destino1
-          from
-          (
-            select * from ${BD_STG}.tmp093168_kpigr03_cndestino1
-            union all select 1,0 from (select '1' agr1) a
-            union all select 0,0 from (select '0' agr0) b
-          ) y group by 1
-      ) x0
-      LEFT JOIN ${BD_STG}.tmp093168_kpigr03_cndestino2 x1 
-      ON x0.ind_presdj=x1.ind_presdj
-    ) z
-  GROUP BY 1,2,3,4
-  ;
-
-  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
- 
 /*=============================================================================*/
 /***********************Genera Detalle de Diferencias**************************/
 /*=============================================================================*/	
 
- 	.EXPORT FILE ${FILE_KPI01};
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_dif_${KPI_01}';
+.IF activitycount = 0 THEN .GOTO ok 
 
+DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_01}	;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;	
+
+    CREATE MULTISET TABLE ${BD_STG}.tmp093168_dif_${KPI_01} AS (
+      SELECT DISTINCT num_ruc,num_docide_empl,
+                        SUBSTR(per_decla,5,2)||SUBSTR(per_decla,1,4) as per_decla
+      FROM ${BD_STG}.tmp093168_kpigr03_detcntpertr
+      EXCEPT ALL
+      SELECT num_ruc,num_doc,periodo 
+      FROM ${BD_STG}.tmp093168_kpigr03_detcntperfv
+    ) WITH DATA NO PRIMARY INDEX;
+
+  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+ 	.EXPORT FILE ${FILE_KPI01};
+   
+   LOCK ROW FOR ACCESS
 	 SELECT 
 	    DISTINCT 
 	        y0.num_ruc as num_ruc_trab,
@@ -480,15 +424,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr03_cndestino2 AS
 	        y0.num_orden,
 	        y0.per_decla as per_dif
 	  FROM ${BD_STG}.tmp093168_kpigr03_detcntpertr y0
-	  INNER JOIN
-	  (
-	    SELECT DISTINCT num_ruc,num_docide_empl,
-	                    SUBSTR(per_decla,5,2)||SUBSTR(per_decla,1,4) as per_decla
-	    FROM ${BD_STG}.tmp093168_kpigr03_detcntpertr
-	    EXCEPT ALL
-	    SELECT num_ruc,num_doc,periodo 
-	    FROM ${BD_STG}.tmp093168_kpigr03_detcntperfv
-	  ) y1 
+	  INNER JOIN ${BD_STG}.tmp093168_dif_${KPI_01} y1 
 	  ON  y0.num_ruc=y1.num_ruc 
 	  AND y0.num_docide_empl=y1.num_docide_empl
 	  AND SUBSTR(y0.per_decla,5,2)||SUBSTR(y0.per_decla,1,4)=y1.per_decla
@@ -498,11 +434,16 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr03_cndestino2 AS
 
 	.EXPORT RESET;
 
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_dif_${KPI_02}';
+.IF activitycount = 0 THEN .GOTO ok 
 
-  	.EXPORT FILE ${FILE_KPI02};
-    
-    LOCK ROW FOR ACCESS
-	  SELECT  DISTINCT 
+DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
+  CREATE MULTISET TABLE ${BD_STG}.tmp093168_dif_${KPI_02} AS (
+     SELECT  DISTINCT 
 	          y0.num_ruc as num_ruc_trab,
 	          y0.num_doc as num_ruc_empl,
 	          y0.periodo as per_dif
@@ -514,12 +455,95 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr03_cndestino2 AS
 	    SELECT num_ruc,num_doc,num_perservicio
 	    FROM ${BD_STG}.tmp093168_kpigr03_detcntpermdb
 	  ) y0
-    ORDER BY y0.num_ruc,y0.periodo 
-    ;
+  ) WITH DATA NO PRIMARY INDEX;
+
+  .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
+
+
+  	.EXPORT FILE ${FILE_KPI02};
+    
+    LOCK ROW FOR ACCESS
+	  SELECT * FROM ${BD_STG}.tmp093168_dif_${KPI_02}
+    ORDER BY 1,3;
     
 	 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
 	.EXPORT RESET;
+
+/********************INSERT EN TABLA FINAL***********************************/
+
+  DELETE FROM ${BD_DQ}.T11908DETKPITRIBINT 
+  WHERE COD_KPI='${KPI_01}' AND FEC_CARGA=CURRENT_DATE;
+
+  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+  INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT 
+  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF)
+  SELECT
+          '${PERIODO}',
+        x0.ind_presdj,
+        '${KPI_01}' ,
+        CURRENT_DATE,
+          case when x0.ind_presdj=0 then 
+                  (select coalesce(sum(cant_per_origen),0) from ${BD_STG}.tmp093168_kpigr03_cnorigen) 
+        else 0 end as cant_origen,
+        coalesce(x1.cant_per_destino1,0) as cant_destino,
+        case when x0.ind_presdj=0 then 
+        case when (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01})=0 then 1 else 0 end 
+        end as ind_incuniv,
+        case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01}) END as cnt_regdif
+  FROM 
+  (
+      select y.ind_presdj,SUM(y.cant_per_origen) as cant_per_origen
+      from
+      (
+        select * from ${BD_STG}.tmp093168_kpigr03_cnorigen
+        union all select 1,0 from (select '1' agr1) a
+        union all select 0,0 from (select '0' agr0) b
+      ) y group by 1
+  )  x0
+  LEFT JOIN ${BD_STG}.tmp093168_kpigr03_cndestino1 x1 
+  ON x0.ind_presdj=x1.ind_presdj
+  ;
+
+  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+  DELETE FROM ${BD_DQ}.T11908DETKPITRIBINT 
+  WHERE COD_KPI='${KPI_02}' AND FEC_CARGA=CURRENT_DATE;
+
+  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+  INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT 
+  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF)
+  SELECT '${PERIODO}',
+          x0.ind_presdj,
+          '${KPI_02}',
+          CURRENT_DATE,
+          x0.cant_per_destino1 AS cant_origen,
+          case when x0.ind_presdj=0  then 
+                  (select coalesce(sum(cant_per_destino2),0) from ${BD_STG}.tmp093168_kpigr03_cndestino2)
+          else 0 end AS cant_destino,
+        case when x0.ind_presdj=0 then 
+        case when (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_02})=0 then 1 else 0 end 
+        end as ind_incuniv,
+        case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_02}) END as cnt_regdif
+  FROM 
+  (
+    select y.ind_presdj,SUM(y.cant_per_destino1) as cant_per_destino1
+      from
+      (
+        select * from ${BD_STG}.tmp093168_kpigr03_cndestino1
+        union all select 1,0 from (select '1' agr1) a
+        union all select 0,0 from (select '0' agr0) b
+      ) y group by 1
+  ) x0
+  LEFT JOIN ${BD_STG}.tmp093168_kpigr03_cndestino2 x1 
+  ON x0.ind_presdj=x1.ind_presdj
+  ;
+
+  .IF ERRORCODE <> 0 THEN .GOTO error_shell;
+ 
+
 
 /********************************************************************************/
 

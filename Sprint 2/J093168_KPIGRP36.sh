@@ -171,7 +171,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr36_obs_cnorigen AS
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
----------2. Conteo en FVirtual
+---------2. Conteo en MongoDB
 
 
 SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_kpigr36_cndestino1';
@@ -188,6 +188,48 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr36_cndestino1 AS
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
+/***************************GENERA DETALLE DE DIFERENCIAS ***********************/
+/********************************************************************************/
+/*************TRANSACCIONAL MENOS T1851*********************************/
+  
+  
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_dif_${KPI_01}';
+.IF activitycount = 0 THEN .GOTO ok 
+
+DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_01}	;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+	
+
+	CREATE MULTISET TABLE ${BD_STG}.tmp093168_dif_${KPI_01} AS (
+    SELECT 
+          y0.num_docidenti,
+          y0.num_nabono,
+          y0.cod_formul,
+          y0.num_orden,    
+          y0.num_periodo
+    FROM
+    (
+      SELECT
+             num_docidenti,
+             num_nabono,
+             cod_formul,
+             num_orden,    
+             num_periodo
+      FROM ${BD_STG}.tmp093168_kpi36_detafo_tr
+      EXCEPT ALL
+      SELECT
+            numRuc,
+            numOperacion,
+            codFormulario,
+            numOrden,    
+            perPeriodo
+      FROM ${BD_STG}.tmp093168_kpi36_detafo_mdb
+     ) y0
+   ) WITH DATA NO PRIMARY INDEX ;
+
+ .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
 /********************INSERT EN TABLA FINAL***********************************/
     

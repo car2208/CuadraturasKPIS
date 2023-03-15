@@ -18,7 +18,7 @@
     AND crt_codtri = '030401'
     AND crt_indaju = '0'
     AND crt_indpag IN (1,5)
-    AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+    AND crt_fecpag <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD')
     AND crt_estado <> '02'
   UNION
   SELECT crt_numruc numruc, crt_perpag perpag, crt_formul formul, crt_ndocpa norden
@@ -28,7 +28,7 @@
     AND crt_tiptra = '2962'
     AND crt_indaju = '1'
     AND crt_indpag IN (1,5)
-    AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+    AND crt_fecpag <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD')
     AND crt_estado <> '02'
 
  ) WITH DATA NO PRIMARY INDEX;
@@ -149,7 +149,7 @@
   AND hsf_codtri = '030401'
   AND hsf_tiptra = '1041'
   AND hsf_tipcta = '01'
-  AND hsf_fecsaf <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD');
+  AND hsf_fecsaf <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD');
 
  
   --  Otros cr�ditos de ley (dbt/doc):
@@ -163,7 +163,7 @@
   AND dbt_codtri = '030401'
   AND dbt_tiptra = 1011
   AND dbt_indrec = 0
-  AND dbt_fecdoc <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+  AND dbt_fecdoc <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD')
   AND doc_formul = dbt_formul
   AND doc_numdoc = dbt_numdoc
   AND doc_codcas = 347
@@ -180,7 +180,7 @@
   WHERE dbt_perpag IN ('202201','202202','202203','202204','202205','202206','202207','202208','202209','202210','202211','202212')
   AND dbt_codtri = '030401'
   AND dbt_tiptra = 1011
-  AND dbt_fecdoc <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+  AND dbt_fecdoc <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD')
   AND dbt_formul = db2_formul
   AND dbt_numdoc = db2_numdoc
   AND dbt_codtri = db2_codtri
@@ -193,7 +193,7 @@
   AND crt_tiptra = '1272'
   AND crt_indaju = '1'
   AND crt_imptri > 0
-  AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD');
+  AND crt_fecpag <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD');
 
  
  -- BLOQUE05
@@ -249,7 +249,7 @@
   WHERE t03periodo IN ('202201','202202','202203','202204','202205','202206','202207','202208','202209','202210','202211','202212')
   AND t03formulario IN ('0616','0116') 
   AND t03rechazado = '0'
-  AND t03f_presenta <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+  AND t03f_presenta <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD')
 
  ) WITH DATA NO PRIMARY INDEX ;
 
@@ -285,7 +285,7 @@
    AND crt_indpag IN (1,5)
    AND crt_estado <> '02'
    AND crt_imptri > 0
-   AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD')
+   AND crt_fecpag <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD')
      
  ) WITH DATA NO PRIMARY INDEX ;
 
@@ -395,7 +395,7 @@
  AND crt_indaju = '1'
  AND crt_tiptra = '1472'
  AND crt_imptri > 0
- AND crt_fecpag <= CAST('2023-02-16' AS DATE FORMAT 'YYYY-MM-DD');
+ AND crt_fecpag <= CAST('2023-03-12' AS DATE FORMAT 'YYYY-MM-DD');
 
 
 -- Bloque 04
@@ -535,33 +535,30 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr06_cndestino2 AS
   WHERE COD_KPI='K006012022' AND FEC_CARGA=CURRENT_DATE;
 
   INSERT INTO BDDWESTG.T11908DETKPITRIBINT 
-  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO)
-  SELECT  '2022',
-          z.ind_presdj,
-         'K006012022',
-          CURRENT_DATE,
-          SUM(z.cant_origen),
-          SUM(z.cant_destino)
-  FROM
-    (
-      SELECT
-             x0.ind_presdj,
-             case when x0.ind_presdj=0 then (select coalesce(sum(cant_per_origen),0) from BDDWESTG.tmp093168_kpigr06_cnorigen) else 0 end as cant_origen,
-             coalesce(x1.cant_per_destino1,0) as cant_destino
-      FROM 
+  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF)
+   SELECT
+         '2022',
+      x0.ind_presdj,
+      'K006012022',
+      CURRENT_DATE,
+         case when x0.ind_presdj=0 then (select coalesce(sum(cant_per_origen),0) from BDDWESTG.tmp093168_kpigr06_cnorigen) else 0 end as cant_origen,
+         coalesce(x1.cant_per_destino1,0) as cant_destino,
+          case when x0.ind_presdj=0 then 
+         case when (select count(*) from BDDWESTG.tmp093168_dif_K006012022)=0 then 1 else 0 end 
+         end as ind_incuniv,
+         case when x0.ind_presdj=0 then (select count(*) from BDDWESTG.tmp093168_dif_K006012022) END as cnt_regdif
+  FROM 
+  (
+      select y.ind_presdj,SUM(y.cant_per_origen) as cant_per_origen
+      from
       (
-          select y.ind_presdj,SUM(y.cant_per_origen) as cant_per_origen
-          from
-          (
-            select * from BDDWESTG.tmp093168_kpigr06_cnorigen
-            union all select 1,0 from (select '1' agr1) a
-            union all select 0,0 from (select '0' agr0) b
-          ) y group by 1
-      ) x0
-      LEFT JOIN BDDWESTG.tmp093168_kpigr06_cndestino1 x1 
-      ON x0.ind_presdj=x1.ind_presdj
-    ) z
-  GROUP BY 1,2,3,4
+        select * from BDDWESTG.tmp093168_kpigr06_cnorigen
+        union all select 1,0 from (select '1' agr1) a
+        union all select 0,0 from (select '0' agr0) b
+      ) y group by 1
+  ) x0
+  LEFT JOIN BDDWESTG.tmp093168_kpigr06_cndestino1 x1 
+  ON x0.ind_presdj=x1.ind_presdj
   ;
 
 
@@ -569,18 +566,17 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr06_cndestino2 AS
   WHERE COD_KPI='K006022022' AND FEC_CARGA=CURRENT_DATE;
 
   INSERT INTO BDDWESTG.T11908DETKPITRIBINT  
-  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO)
-  SELECT  '2022',
-          z.ind_presdj,
-          'K006022022',
-          CURRENT_DATE,
-          SUM(z.cant_origen),
-          SUM(z.cant_destino)
-  FROM
-    (
-      SELECT x0.ind_presdj,
+  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF)
+    SELECT    '2022',
+              x0.ind_presdj,
+              'K006022022',
+              CURRENT_DATE,
              x0.cant_per_destino1 AS cant_origen,
-             case when x0.ind_presdj=0  then (select coalesce(sum(cant_per_destino2),0) from BDDWESTG.tmp093168_kpigr06_cndestino2) else 0 end AS cant_destino
+             case when x0.ind_presdj=0  then (select coalesce(sum(cant_per_destino2),0) from BDDWESTG.tmp093168_kpigr06_cndestino2) else 0 end AS cant_destino,
+             case when x0.ind_presdj=0 then 
+             case when (select count(*) from BDDWESTG.tmp093168_dif_K006022022)=0 then 1 else 0 end 
+             end as ind_incuniv,
+          case when x0.ind_presdj=0 then (select count(*) from BDDWESTG.tmp093168_dif_K006022022) END as cnt_regdif
       FROM 
       (
           select y.ind_presdj,SUM(y.cant_per_destino1) as cant_per_destino1
@@ -593,8 +589,6 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_kpigr06_cndestino2 AS
       ) x0
       LEFT JOIN BDDWESTG.tmp093168_kpigr06_cndestino2 x1 
       ON x0.ind_presdj=x1.ind_presdj
-    ) z
-  GROUP BY 1,2,3,4
   ;
 
  

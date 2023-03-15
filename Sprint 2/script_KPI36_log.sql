@@ -69,10 +69,10 @@ AS
 select 
     numRuc,
     numOperacion,
-    codFormulario,
+    cast(codFormulario as smallint) as codFormulario,
     numOrden,    
     cast(substr(trim(fecPresentacion),1,10) as date format 'yyyy-mm-dd') as fec_presenta,
-    perPeriodo
+    cast(perPeriodo as integer) as perPeriodo
  from bddwestg.present_mongo2 
  where fec_presenta >= CAST('2022-10-01' AS DATE FORMAT 'YYYY-MM-DD')
  and codFormulario in (SELECT cast(cod_form as integer) FROM bddwestg.tmp093168_kpi_formularios)
@@ -103,6 +103,48 @@ CREATE MULTISET TABLE bddwestg.tmp093168_kpigr36_cndestino1 AS
     FROM bddwestg.tmp093168_kpi36_detafo_mdb
 ) WITH DATA NO PRIMARY INDEX;
 
+
+      SELECT
+            *
+      FROM bddwestg.tmp093168_kpi36_detafo_tr x0
+      INNER JOIN bddwestg.tmp093168_kpi36_detafo_mdb x1
+      ON 
+      x0.num_docidenti=x1.numRuc and
+      x0.cod_formul=x1.codFormulario and
+      x0.num_orden=x1.numOrden and
+      x0.fec_presenta=x1.fec_presenta
+
+
+/***************************GENERA DETALLE DE DIFERENCIAS ***********************/
+/********************************************************************************/
+
+DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_01};
+
+	CREATE MULTISET TABLE ${BD_STG}.tmp093168_dif_${KPI_01} AS (
+    SELECT 
+          y0.num_docidenti,
+          y0.num_nabono,
+          y0.cod_formul,
+          y0.num_orden,    
+          y0.num_periodo
+    FROM
+    (
+      SELECT
+            *
+      FROM bddwestg.tmp093168_kpi36_detafo_tr x0
+      INNER JOIN bddwestg.tmp093168_kpi36_detafo_mdb x1
+      ON 
+      x0.num_docidenti=x1.numRuc and
+      x0.cod_formul=x1.codFormulario and
+      x0.num_orden=x1.numOrden and
+      x0.fec_presenta=x1.fec_presenta
+
+
+
+     ) y0
+   ) WITH DATA NO PRIMARY INDEX ;
+
+ .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
 /********************INSERT EN TABLA FINAL***********************************/
     
