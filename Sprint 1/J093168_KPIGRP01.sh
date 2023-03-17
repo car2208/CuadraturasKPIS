@@ -396,6 +396,25 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpi02_cndestino2 AS
 /***********************Genera Detalle de Diferencias**************************/
 /*=============================================================================*/	
 	
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_total_${KPI_01}';
+.IF activitycount = 0 THEN .GOTO ok 
+
+DROP TABLE ${BD_STG}.tmp093168_total_${KPI_01}	;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
+CREATE MULTISET TABLE ${BD_STG}.tmp093168_total_${KPI_01} AS (
+	SELECT x0.num_ruc,x0.num_serie,x0.cod_tipcomp,x0.num_comprob,x1.num_ruc as num_rucB  
+	FROM ${BD_STG}.tmp093168_detcantrxhetr x0
+	FULL JOIN ${BD_STG}.tmp093168_detcantrxhefv x1 on 
+	x0.num_ruc=x1.num_ruc and
+	x0.num_serie=x1.num_serie and
+	x0.cod_tipcomp=x1.tip_comp and
+	x0.num_comprob=cast(x1.num_comp as integer)
+) WITH DATA NO PRIMARY INDEX;
+	
+
 SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_dif_${KPI_01}';
 .IF activitycount = 0 THEN .GOTO ok 
 
@@ -411,27 +430,31 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_01}	;
 				y0.num_serie,
 				y0.cod_tipcomp,
 				y0.num_comprob
-	FROM
-	(
-		SELECT num_ruc,num_serie,cod_tipcomp,num_comprob 
-		FROM ${BD_STG}.tmp093168_detcantrxhetr
-		EXCEPT ALL
-		SELECT num_ruc,num_serie,tip_comp,cast(num_comp as integer)
-		FROM ${BD_STG}.tmp093168_detcantrxhefv
-	) y0
+	FROM ${BD_STG}.tmp093168_total_${KPI_01} y0
+	WHERE y0.num_rucB is null
 	) WITH DATA NO PRIMARY INDEX;
 
 	.IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
-	.EXPORT FILE ${FILE_KPI01};
 
-	LOCK ROW FOR ACCESS
-	SELECT * FROM ${BD_STG}.tmp093168_dif_${KPI_01} 
-	ORDER BY num_ruc_trab
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_total_${KPI_02}';
+.IF activitycount = 0 THEN .GOTO ok 
 
-	.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+DROP TABLE ${BD_STG}.tmp093168_total_${KPI_02}	;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
-	.EXPORT RESET;
+.label ok;
+
+CREATE MULTISET TABLE ${BD_STG}.tmp093168_total_${KPI_02} AS (
+	SELECT x0.num_ruc,x0.num_serie,x0.tip_comp,cast(x0.num_comp as integer)  as num_comprob,x1.num_ruc as num_rucB
+	FROM ${BD_STG}.tmp093168_detcantrxhefv x0
+	FULL JOIN ${BD_STG}.tmp093168_detcantrxhemdb x1 ON
+	x0.num_ruc=x1.num_ruc and
+	x0.num_serie=x1.num_serie and
+	x0.tip_comp=x1.cod_tipcomp and
+	cast(x0.num_comp as integer)=cast(x1.num_comp as integer) 
+) WITH DATA NO PRIMARY INDEX;
+
 
 
 SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_dif_${KPI_02}';
@@ -448,27 +471,13 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
 			  y0.num_serie,
 			  y0.tip_comp  as cod_tipcomp,
 			  y0.num_comprob
-	FROM
-	(
-		SELECT num_ruc,num_serie,tip_comp,cast(num_comp as integer)  as num_comprob
-		FROM ${BD_STG}.tmp093168_detcantrxhefv
-		EXCEPT ALL
-		SELECT num_ruc,num_serie,cod_tipcomp,cast(num_comp as integer) 
-		FROM ${BD_STG}.tmp093168_detcantrxhemdb
-	) y0 
+	FROM ${BD_STG}.tmp093168_total_${KPI_02} y0 
+	WHERE y0.num_rucB is null
 	) WITH DATA NO PRIMARY INDEX;
 
 	.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
-	.EXPORT FILE ${FILE_KPI02};
 
-    LOCK ROW FOR ACCESS
-	SELECT * FROM ${BD_STG}.tmp093168_dif_${KPI_02}
-	ORDER BY num_ruc_trab;
-
-	.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
-
-	.EXPORT RESET;
 
 /****************************************************************************/
 /********************INSERT EN TABLA FINAL***********************************/
@@ -479,7 +488,7 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
     .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
     
 	INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT 
-	(COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF)
+	(COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF_OD,CNT_REGDIF_DO,CNT_REGCOINC)
 	SELECT 
 			'${PERIODO}',
 			x0.ind_presdj,
@@ -488,9 +497,11 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
 			case when x0.ind_presdj=0 then (select coalesce(sum(cant_rxh_origen),0) from ${BD_STG}.tmp093168_kpi01_cnorigen) else 0 end as cant_origen,
 			coalesce(x1.cant_rxh_destino1,0) as cant_destino,
 			case when x0.ind_presdj=0 then 
-			case when (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01})=0 then 1 else 0 end 
+			case when ((select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01})=0 and (select count(*) from ${BD_STG}.tmp093168_detcantrxhetr)<>0) then 1 else 0 end 
 			end as ind_incuniv,
-			case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01}) END as cnt_regdif
+			case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01}) END as cnt_regdif_od,
+			case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_total_${KPI_01} where num_ruc is null) end as cnt_regdif_do ,
+			case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_total_${KPI_01} where num_ruc=num_rucB) end as cnt_regcoinc
 	FROM 
 	(
 		select y.ind_presdj,SUM(y.cant_rxh_origen) as cant_rxh_origen
@@ -513,7 +524,7 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
     .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
     
 	INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT 
-	(COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF)
+	(COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF_OD,CNT_REGDIF_DO,CNT_REGCOINC)
 	SELECT 
 			'${PERIODO}',
 			x0.ind_presdj,
@@ -522,9 +533,11 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
 			x0.cant_rxh_destino1 AS cant_origen,
 			case when x0.ind_presdj=0  then (select coalesce(sum(cant_rxh_destino2),0) from ${BD_STG}.tmp093168_kpi02_cndestino2) else 0 end AS cant_destino,
 			case when x0.ind_presdj=0 then 
-			case when (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_02})=0 then 1 else 0 end 
+			case when ((select count(*) from ${BD_STG}.tmp093168_dif_${KPI_02})=0 and (select count(*) from ${BD_STG}.tmp093168_detcantrxhefv)<>0) then 1 else 0 end 
 			end as ind_incuniv,
-			case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_02}) END as cnt_regdif
+			case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_02}) END as cnt_regdif_od,
+			case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_total_${KPI_02} where num_ruc is null) end as cnt_regdif_do,
+			case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_total_${KPI_02} where num_ruc=num_rucB) end as cnt_regcoinc
 	FROM 
 	(
 		select y.ind_presdj,SUM(y.cant_rxh_destino1) as cant_rxh_destino1
@@ -541,6 +554,27 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
 
 	.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
+/********************************************************************************/
+	
+	.EXPORT FILE ${FILE_KPI01};
+
+	LOCK ROW FOR ACCESS
+	SELECT * FROM ${BD_STG}.tmp093168_dif_${KPI_01} 
+	ORDER BY num_ruc_trab
+
+	.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+	.EXPORT RESET;
+
+	.EXPORT FILE ${FILE_KPI02};
+
+    LOCK ROW FOR ACCESS
+	SELECT * FROM ${BD_STG}.tmp093168_dif_${KPI_02}
+	ORDER BY num_ruc_trab;
+
+	.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
+
+	.EXPORT RESET;
 
 
 /********************************************************************************/
