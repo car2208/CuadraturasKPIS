@@ -8,23 +8,25 @@
 ### $5 : Base de datos Teradata - Staging
 ### $6 : Ruta Log TERADATA
 ### $7 : Periodo :2022
-##  sh /work1/teradata/shells/093168/J093168_KPIGRP01.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022 2023-01-31
-##  sh /work1/teradata/shells/093168/J093168_KPIGRP01.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD /work1/teradata/log/093168 2022 2023-01-31
+##  sh /work1/teradata/shells/093168/J093168_KPIGRP01.sh tdsunat usr_carga_prod twusr_carga_prod BDDWETB BDDWEDQ BDDWESTG BDDWELND /work1/teradata/log/093168 2022 2023-01-31
+##  sh /work1/teradata/shells/093168/J093168_KPIGRP01.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWETBD BDDWEDQD BDDWESTGD BDDWELNDD /work1/teradata/log/093168 2022 2023-01-31
 ################################################################################
 
 
-if [ $# -ne 8 ]; then echo 'Numero incorrecto de Parametros'; exit 1; fi
+if [ $# -ne 10 ]; then echo 'Numero incorrecto de Parametros'; exit 1; fi
 
 
 ### PARAMETROS
 server_TD=${1}
 username_TD=${2}
 walletPwd_TD=${3}
-BD_DQ=${4}
-BD_STG=${5}
-path_log_TD=${6}
-PERIODO=${7}
-FECHA_CORTE=${8}
+BD_TB=${4}
+BD_DQ=${5}
+BD_STG=${6}
+BD_LND=${7}
+path_log_TD=${8}
+PERIODO=${9}
+FECHA_CORTE=${10}
 
 MY_DIR=`dirname $0`
 NOMBREBASE=`basename ${0} .sh`
@@ -78,7 +80,8 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_cantrecibos as
 	WHERE EXTRACT(YEAR FROM fec_emision_rec) = ${PERIODO}
 	AND ind_estado_rec = '0'
 	AND cod_tipcomp = '01'
-	AND fec_emision_rec <= DATE '${FECHA_CORTE}'
+	--AND fec_emision_rec <= DATE '${FECHA_CORTE}'
+	AND fec_registro <= DATE '${FECHA_CORTE}'
 ) WITH DATA NO PRIMARY INDEX;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
@@ -100,7 +103,8 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_cantnotascredito as
 	WHERE EXTRACT(YEAR FROM fec_emision_nc) = ${PERIODO}
 	AND ind_estado_nc = '0'
 	AND cod_tipcomp_ori = '01'
-	AND fec_emision_nc <= DATE '${FECHA_CORTE}'
+	--AND fec_emision_nc <= DATE '${FECHA_CORTE}'
+	AND fec_registro <= DATE '${FECHA_CORTE}'
 ) WITH DATA NO PRIMARY INDEX;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
@@ -120,30 +124,34 @@ DROP TABLE ${BD_STG}.tmp093168_udjkpi1;
 
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_udjkpi1 as
 (
-SELECT t2.t03nabono,t2.t03norden,t2.t03formulario,t2.t03lltt_ruc,
-         t2.t03periodo,t2.t03f_presenta 
+SELECT  t2.num_nabono as t03nabono,
+        t2.num_orden as t03norden,
+        t2.cod_formul as t03formulario,
+        t2.num_ruc as  t03lltt_ruc,
+        t2.cod_per as t03periodo,
+        t2.fec_presenta as t03f_presenta 
 FROM 
 		(
 			SELECT 
-			t03periodo,
-			t03lltt_ruc,
-			t03formulario,
-			MAX(t03f_presenta) as t03f_presenta,
-			MAX(t03nresumen) as t03nresumen,
-			MAX(t03norden) as t03norden 
-			FROM ${BD_STG}.t03djcab
-			WHERE t03formulario = '0616' 
-			AND t03periodo between '${PERIODO}01' and '${PERIODO}12'
-			AND t03f_presenta <= DATE '${FECHA_CORTE}'
+			    cod_per ,
+				num_ruc ,
+				cod_formul ,
+				MAX(fec_presenta) as fec_presenta,
+				MAX(num_resumen) as num_resumen,
+				MAX(num_orden) as num_orden 
+			FROM ${BD_TB}.t8593djcab
+			WHERE cod_formul = '0616' 
+			AND cod_per between '${PERIODO}01' and '${PERIODO}12'
+			AND fec_presenta <= DATE '${FECHA_CORTE}'
 		    GROUP BY 1,2,3
 		    
 		) t1
-INNER JOIN ${BD_STG}.t03djcab t2 ON t2.t03periodo = t1.t03periodo 
-AND t2.t03lltt_ruc = t1.t03lltt_ruc
-AND t2.t03formulario = t1.t03formulario
-AND t2.t03f_presenta = t1.t03f_presenta
-AND t2.t03nresumen = t1.t03nresumen
-AND t2.t03norden = t1.t03norden
+INNER JOIN ${BD_TB}.t8593djcab t2 ON t2.cod_per = t1.cod_per 
+AND t2.num_ruc = t1.num_ruc
+AND t2.cod_formul = t1.cod_formul
+AND t2.fec_presenta = t1.fec_presenta
+AND t2.num_resumen = t1.num_resumen
+AND t2.num_orden = t1.num_orden
 )
 WITH DATA NO PRIMARY INDEX;
 
@@ -414,6 +422,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_total_${KPI_01} AS (
 	x0.num_comprob=cast(x1.num_comp as integer)
 ) WITH DATA NO PRIMARY INDEX;
 	
+.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
 SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_dif_${KPI_01}';
 .IF activitycount = 0 THEN .GOTO ok 
@@ -455,7 +464,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_total_${KPI_02} AS (
 	cast(x0.num_comp as integer)=cast(x1.num_comp as integer) 
 ) WITH DATA NO PRIMARY INDEX;
 
-
+.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
 SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_dif_${KPI_02}';
 .IF activitycount = 0 THEN .GOTO ok 
