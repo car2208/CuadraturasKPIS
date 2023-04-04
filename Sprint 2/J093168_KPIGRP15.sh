@@ -8,13 +8,13 @@
 ### $5 : Base de datos Teradata - Staging
 ### $6 : Ruta Log TERADATA
 ### $7 : Periodo :2022
-### sh /work1/teradata/shells/093168/J093168_KPIGRP15.sh tdsunat usr_carga_prod twusr_carga_prod bddwedq bddwestg /work1/teradata/log/093168 2022
-### sh /work1/teradata/shells/093168/J093168_KPIGRP15.sh tdtp01s2 usr_carga_desa twusr_carga_desa bddwedqd bddwestgd /work1/teradata/log/093168 2022
+### sh /work1/teradata/shells/093168/J093168_KPIGRP15.sh tdsunat usr_carga_prod twusr_carga_prod bddwedq bddwestg bddwelnd /work1/teradata/log/093168 2022
+### sh /work1/teradata/shells/093168/J093168_KPIGRP15.sh tdtp01s2 usr_carga_desa twusr_carga_desa bddwedqd bddwestgd bddwelndd /work1/teradata/log/093168 2022
 
 ################################################################################
 
 
-if [ $# -ne 7 ]; then echo 'Numero incorrecto de Parametros'; exit 1; fi
+if [ $# -ne 8 ]; then echo 'Numero incorrecto de Parametros'; exit 1; fi
 
 
 ### PARAMETROS
@@ -23,8 +23,9 @@ username_TD=${2}
 walletPwd_TD=${3}
 BD_DQ=${4}
 BD_STG=${5}
-path_log_TD=${6}
-PERIODO=${7}
+BD_LND=${6}
+path_log_TD=${7}
+PERIODO=${8}
 
 
 MY_DIR=`dirname $0`
@@ -86,7 +87,7 @@ SELECT
 	x0.mto_doc_fin_mn,
 	x0.mto_deduccion_fin
 FROM ${BD_STG}.t8156cpgastodeduc x0 
-LEFT JOIN ${BD_STG}.ddp x1 ON x0.num_ruc_emisor = x1.ddp_numruc 
+LEFT JOIN ${BD_LND}.ddp_ruc x1 ON x0.num_ruc_emisor = x1.ddp_numruc 
 LEFT JOIN ${BD_STG}.tmp093168_kpiperindj x2 on x0.num_ruc=x2.num_ruc
 WHERE x0.ann_ejercicio = '${PERIODO}' 
 AND x0.ind_tip_gasto = '05' 
@@ -367,7 +368,7 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02}	;
     .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
     
 	INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT 
-	(COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,MTO_REGORIGEN,MTO_REGIDESTINO,IND_INCUNIV,CNT_REGDIF_OD,CNT_REGDIF_DO,CNT_REGCOINC)
+	(COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,MTO_REGORIGEN,MTO_REGIDESTINO,IND_INCUNIV,MTO_REGDIF_OD,MTO_REGDIF_DO,MTO_REGCOINC)
 	SELECT
 			'${PERIODO}',				   
 			x0.ind_presdj,
@@ -409,7 +410,7 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02}	;
     .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
     
 	INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT 
-	(COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,MTO_REGORIGEN,MTO_REGIDESTINO,IND_INCUNIV,CNT_REGDIF_OD,CNT_REGDIF_DO,CNT_REGCOINC)
+	(COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,MTO_REGORIGEN,MTO_REGIDESTINO,IND_INCUNIV,MTO_REGDIF_OD,MTO_REGDIF_DO,MTO_REGCOINC)
 	SELECT 
 			'${PERIODO}',
             x0.ind_presdj,

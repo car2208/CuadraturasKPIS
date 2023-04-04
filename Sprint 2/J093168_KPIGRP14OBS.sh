@@ -8,13 +8,13 @@
 ### $5 : Base de datos Teradata - Staging
 ### $6 : Ruta Log TERADATA
 ### $7 : Periodo :2022
-### sh /work1/teradata/shells/093168/J093168_KPIGRP14OBS.sh tdsunat usr_carga_prod twusr_carga_prod bddwedq bddwestg /work1/teradata/log/093168 2022
-### sh /work1/teradata/shells/093168/J093168_KPIGRP14OBS.sh tdtp01s2 usr_carga_desa twusr_carga_desa bddwedqd bddwestgd /work1/teradata/log/093168 2022
+### sh /work1/teradata/shells/093168/J093168_KPIGRP14OBS.sh tdsunat usr_carga_prod twusr_carga_prod bddwedq bddwestg bddwelnd /work1/teradata/log/093168 2022
+### sh /work1/teradata/shells/093168/J093168_KPIGRP14OBS.sh tdtp01s2 usr_carga_desa twusr_carga_desa bddwedqd bddwestgd bddwelndd /work1/teradata/log/093168 2022
 
 ################################################################################
 
 
-if [ $# -ne 7 ]; then echo 'Numero incorrecto de Parametros'; exit 1; fi
+if [ $# -ne 8 ]; then echo 'Numero incorrecto de Parametros'; exit 1; fi
 
 
 ### PARAMETROS
@@ -23,8 +23,9 @@ username_TD=${2}
 walletPwd_TD=${3}
 BD_DQ=${4}
 BD_STG=${5}
-path_log_TD=${6}
-PERIODO=${7}
+BD_LND=${6}
+path_log_TD=${7}
+PERIODO=${8}
 
 
 MY_DIR=`dirname $0`
@@ -83,7 +84,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpi14_detcpeobs_tr as
 		TRIM(x0.ser_doc) as ser_doc,
 		TRIM(x0.num_doc) as num_doc
 	FROM ${BD_STG}.t8157cpgastoobserv x0
-	LEFT JOIN ${BD_STG}.ddp x1 ON x0.num_ruc_emisor = x1.ddp_numruc
+	LEFT JOIN ${BD_LND}.ddp_ruc x1 ON x0.num_ruc_emisor = x1.ddp_numruc
 	LEFT JOIN ${BD_STG}.tmp093168_kpiperindj x2 ON x0.num_ruc=x2.num_ruc
 	WHERE x0.ann_ejercicio = '${PERIODO}' 
 	AND x0.ind_tip_gasto = '05' 

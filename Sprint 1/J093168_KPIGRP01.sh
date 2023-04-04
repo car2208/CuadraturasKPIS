@@ -143,6 +143,8 @@ FROM
 			WHERE cod_formul = '0616' 
 			AND cod_per between '${PERIODO}01' and '${PERIODO}12'
 			AND fec_presenta <= DATE '${FECHA_CORTE}'
+			AND fec_finvig=2000101
+			AND ind_deldwe='0'
 		    GROUP BY 1,2,3
 		    
 		) t1

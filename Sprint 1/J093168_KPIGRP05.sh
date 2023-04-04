@@ -93,6 +93,8 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_udjkpigr5 as
   WHERE cod_formul = '0601' 
   AND cod_per IN ( '${NPER}01','${NPER}02')
   AND fec_presenta <=DATE '${FECHA_CORTE}'
+  AND fec_finvig=2000101
+	AND ind_deldwe='0'
   GROUP BY 1,2,3
   ) AS t1 
   INNER JOIN ${BD_TB}.t8593djcab t2 ON t2.cod_per = t1.cod_per 

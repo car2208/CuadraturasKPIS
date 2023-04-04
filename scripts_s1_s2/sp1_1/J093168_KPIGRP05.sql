@@ -37,6 +37,8 @@ CREATE MULTISET TABLE BDDWESTG.tmp093168_udjkpigr5 as
   WHERE cod_formul = '0601' 
   AND cod_per IN ( '202301','202302')
   AND fec_presenta <=DATE '2023-03-22'
+  AND fec_finvig=2000101
+	AND ind_deldwe='0'
   GROUP BY 1,2,3
   ) AS t1 
   INNER JOIN BDDWETB.t8593djcab t2 ON t2.cod_per = t1.cod_per 

@@ -30,7 +30,7 @@ CREATE MULTISET TABLE bddwestg.tmp093168_kpi14_detcpeobs_tr as
   TRIM(x0.ser_doc) as ser_doc,
   TRIM(x0.num_doc) as num_doc
  FROM bddwestg.t8157cpgastoobserv x0
- LEFT JOIN bddwestg.ddp x1 ON x0.num_ruc_emisor = x1.ddp_numruc
+ LEFT JOIN bddwelnd.ddp_ruc x1 ON x0.num_ruc_emisor = x1.ddp_numruc
  LEFT JOIN bddwestg.tmp093168_kpiperindj x2 ON x0.num_ruc=x2.num_ruc
  WHERE x0.ann_ejercicio = '2022' 
  AND x0.ind_tip_gasto = '05' 

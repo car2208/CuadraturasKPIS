@@ -40,6 +40,8 @@ FROM BDDWETB.t8593djcab
 WHERE cod_formul = '0601' 
 AND cod_per BETWEEN '202201' and '202212'
 AND fec_presenta <= CAST('2023-03-22' AS DATE FORMAT 'YYYY-MM-DD')
+AND fec_finvig=2000101
+AND ind_deldwe='0'
 GROUP BY 1,2,3
 ) AS t1 
 INNER JOIN BDDWETB.t8593djcab t2 ON t2.cod_per = t1.cod_per 

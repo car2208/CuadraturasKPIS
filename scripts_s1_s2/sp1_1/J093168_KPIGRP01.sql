@@ -74,7 +74,9 @@ FROM
    WHERE cod_formul = '0616' 
    AND cod_per between '202201' and '202212'
    AND fec_presenta <= DATE '2023-03-22'
-      GROUP BY 1,2,3
+   AND fec_finvig=2000101
+   AND ind_deldwe='0'
+   GROUP BY 1,2,3
       
   ) t1
 INNER JOIN BDDWETB.t8593djcab t2 ON t2.cod_per = t1.cod_per 

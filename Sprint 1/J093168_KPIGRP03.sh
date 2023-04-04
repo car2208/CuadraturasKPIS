@@ -8,8 +8,8 @@
 ### $5 : Base de datos Teradata - Staging
 ### $6 : Ruta Log TERADATA
 ### $7: Periodo :${PERIODO}
-##  sh /work1/teradata/shells/093168/J093168_KPIGRP03.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022 2023-01-31
-##  sh /work1/teradata/shells/093168/J093168_KPIGRP03.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD /work1/teradata/log/093168 2022 2023-01-31
+##  sh /work1/teradata/shells/093168/J093168_KPIGRP03.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG bddwelnd /work1/teradata/log/093168 2022 2023-01-31
+##  sh /work1/teradata/shells/093168/J093168_KPIGRP03.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD bddwelndd /work1/teradata/log/093168 2022 2023-01-31
 
 ################################################################################
 
@@ -96,6 +96,8 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_udjkpigr3 as
     WHERE cod_formul = '0601' 
     AND cod_per BETWEEN '${PERIODO}01' and '${PERIODO}12'
     AND fec_presenta <=DATE '${FECHA_CORTE}'
+    AND fec_finvig=2000101
+		AND ind_deldwe='0'
     GROUP BY 1,2,3
   ) AS t1 
   INNER JOIN ${BD_TB}.t8593djcab t2 ON t2.cod_per = t1.cod_per 
@@ -180,8 +182,10 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_udj_f616_kpigr3 as
 				MAX(num_orden) as num_orden 
   FROM ${BD_TB}.t8593djcab
   WHERE cod_formul = '0616' 
-   AND cod_per BETWEEN '${PERIODO}01' and '${PERIODO}12'
-    AND fec_presenta <=DATE '${FECHA_CORTE}'
+  AND cod_per BETWEEN '${PERIODO}01' and '${PERIODO}12'
+  AND fec_presenta <=DATE '${FECHA_CORTE}'
+  AND fec_finvig=2000101
+	AND ind_deldwe='0'
   GROUP BY 1,2,3
   ) AS t1 
   INNER JOIN ${BD_TB}.t8593djcab t2 ON t2.cod_per = t1.cod_per 
