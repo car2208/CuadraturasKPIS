@@ -8,24 +8,26 @@
 ### $5 : Base de datos Teradata - Staging
 ### $6 : Ruta Log TERADATA
 ### $7: Periodo :${PERIODO}
-##  sh /work1/teradata/shells/093168/J093168_KPIGRP03.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG /work1/teradata/log/093168 2022 2023-01-31
-##  sh /work1/teradata/shells/093168/J093168_KPIGRP03.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD /work1/teradata/log/093168 2022 2023-01-31
+##  sh /work1/teradata/shells/093168/J093168_KPIGRP03.sh tdsunat usr_carga_prod twusr_carga_prod BDDWEDQ BDDWESTG bddwelnd /work1/teradata/log/093168 2022 2023-01-31
+##  sh /work1/teradata/shells/093168/J093168_KPIGRP03.sh tdtp01s2 usr_carga_desa twusr_carga_desa BDDWEDQD BDDWESTGD bddwelndd /work1/teradata/log/093168 2022 2023-01-31
 
 ################################################################################
 
 
-if [ $# -ne 8 ]; then echo 'Numero incorrecto de Parametros'; exit 1; fi
+if [ $# -ne 10 ]; then echo 'Numero incorrecto de Parametros'; exit 1; fi
 
 
 ### PARAMETROS
 server_TD=${1}
 username_TD=${2}
 walletPwd_TD=${3}
-BD_DQ=${4}
-BD_STG=${5}
-path_log_TD=${6}
-PERIODO=${7}
-FECHA_CORTE=${8}
+BD_TB=${4}
+BD_DQ=${5}
+BD_STG=${6}
+BD_LND=${7}
+path_log_TD=${8}
+PERIODO=${9}
+FECHA_CORTE=${10}
 
 MY_DIR=`dirname $0`
 NOMBREBASE=`basename ${0} .sh`
@@ -75,28 +77,35 @@ DROP TABLE ${BD_STG}.tmp093168_udjkpigr3;
 
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_udjkpigr3 as
 (
-  SELECT t2.t03nabono,t2.t03norden,t2.t03formulario,
-         t2.t03lltt_ruc,t2.t03periodo,t2.t03f_presenta 
+  SELECT t2.num_nabono as t03nabono,
+        t2.num_orden as t03norden,
+        t2.cod_formul as t03formulario,
+        t2.num_ruc as  t03lltt_ruc,
+        t2.cod_per as t03periodo,
+        t2.fec_presenta as t03f_presenta 
   FROM 
   (
-    SELECT t03periodo,
-           t03lltt_ruc,
-           t03formulario,
-           MAX(t03f_presenta) as t03f_presenta,
-           MAX(t03nresumen) as t03nresumen,
-           MAX(t03norden)  as t03norden
-    FROM ${BD_STG}.t03djcab
-    WHERE t03formulario = '0601' 
-    AND t03periodo BETWEEN '${PERIODO}01' and '${PERIODO}12'
-    AND t03f_presenta <=DATE '${FECHA_CORTE}'
+    SELECT 
+			  cod_per ,
+				num_ruc ,
+				cod_formul ,
+				MAX(fec_presenta) as fec_presenta,
+				MAX(num_resumen) as num_resumen,
+				MAX(num_orden) as num_orden 
+    FROM ${BD_TB}.t8593djcab
+    WHERE cod_formul = '0601' 
+    AND cod_per BETWEEN '${PERIODO}01' and '${PERIODO}12'
+    AND fec_presenta <=DATE '${FECHA_CORTE}'
+    AND fec_finvig=2000101
+		AND ind_deldwe='0'
     GROUP BY 1,2,3
   ) AS t1 
-  INNER JOIN ${BD_STG}.t03djcab t2 ON t2.t03periodo = t1.t03periodo 
-  AND t2.t03lltt_ruc = t1.t03lltt_ruc
-  AND t2.t03formulario = t1.t03formulario
-  AND t2.t03f_presenta = t1.t03f_presenta
-  AND t2.t03nresumen = t1.t03nresumen
-  AND t2.t03norden = t1.t03norden
+  INNER JOIN ${BD_TB}.t8593djcab t2 ON t2.cod_per = t1.cod_per 
+AND t2.num_ruc = t1.num_ruc
+AND t2.cod_formul = t1.cod_formul
+AND t2.fec_presenta = t1.fec_presenta
+AND t2.num_resumen = t1.num_resumen
+AND t2.num_orden = t1.num_orden
 )
 WITH DATA NO PRIMARY INDEX;
 
@@ -131,9 +140,9 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr3_periodos_compag AS
   AND x1.t03nabono = x0.num_paq
   AND x1.t03formulario = x0.formulario 
   AND x1.t03norden = x0.norden
-  LEFT JOIN ${BD_STG}.ddp x2 
+  LEFT JOIN ${BD_LND}.ddp_ruc x2 
   ON x0.num_doc_ide=x2.ddp_numruc AND x0.cod_tip_doc_ide='06'
-  LEFT JOIN ${BD_STG}.dds x3 
+  LEFT JOIN ${BD_LND}.dds_ruc x3 
   ON x0.num_doc_ide=x3.dds_nrodoc AND cast(cast(x0.cod_tip_doc_ide AS int) as varchar(2))=x3.dds_docide
   WHERE x0.per_decla BETWEEN '${PERIODO}01' AND '${PERIODO}12' 
   AND x0.formulario = '0601'
@@ -157,28 +166,34 @@ DROP TABLE ${BD_STG}.tmp093168_udj_f616_kpigr3;
 .label ok;
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_udj_f616_kpigr3 as
 (
-  SELECT t2.t03nabono,t2.t03norden,t2.t03formulario,
-         t2.t03lltt_ruc,t2.t03periodo,t2.t03f_presenta 
+  SELECT t2.num_nabono as t03nabono,
+        t2.num_orden as t03norden,
+        t2.cod_formul as t03formulario,
+        t2.num_ruc as  t03lltt_ruc,
+         t2.cod_per as t03periodo,
+         t2.fec_presenta as t03f_presenta  
   FROM 
   (
-  SELECT t03periodo,
-         t03lltt_ruc,
-         t03formulario,
-         MAX(t03f_presenta) as t03f_presenta,
-         MAX(t03nresumen) as t03nresumen,
-         MAX(t03norden)  as t03norden
-  FROM ${BD_STG}.t03djcab
-  WHERE t03formulario = '0616' 
-   AND t03periodo BETWEEN '${PERIODO}01' and '${PERIODO}12'
-    AND t03f_presenta <=DATE '${FECHA_CORTE}'
+  SELECT cod_per ,
+				num_ruc ,
+				cod_formul ,
+				MAX(fec_presenta) as fec_presenta,
+				MAX(num_resumen) as num_resumen,
+				MAX(num_orden) as num_orden 
+  FROM ${BD_TB}.t8593djcab
+  WHERE cod_formul = '0616' 
+  AND cod_per BETWEEN '${PERIODO}01' and '${PERIODO}12'
+  AND fec_presenta <=DATE '${FECHA_CORTE}'
+  AND fec_finvig=2000101
+	AND ind_deldwe='0'
   GROUP BY 1,2,3
   ) AS t1 
-  INNER JOIN ${BD_STG}.t03djcab t2 ON t2.t03periodo = t1.t03periodo 
-  AND t2.t03lltt_ruc = t1.t03lltt_ruc
-  AND t2.t03formulario = t1.t03formulario
-  AND t2.t03f_presenta = t1.t03f_presenta
-  AND t2.t03nresumen = t1.t03nresumen
-  AND t2.t03norden = t1.t03norden
+  INNER JOIN ${BD_TB}.t8593djcab t2 ON t2.cod_per = t1.cod_per 
+AND t2.num_ruc = t1.num_ruc
+AND t2.cod_formul = t1.cod_formul
+AND t2.fec_presenta = t1.fec_presenta
+AND t2.num_resumen = t1.num_resumen
+AND t2.num_orden = t1.num_orden
 )
 WITH DATA NO PRIMARY INDEX;
 
@@ -275,7 +290,7 @@ SELECT
         x0.per_decla
 FROM ${BD_STG}.tmp093168_kpigr03_detcnt_tr x0
 LEFT JOIN ${BD_STG}.tmp093168_kpiperindj x1 on x0.num_ruc=x1.num_ruc
-INNER JOIN ${BD_STG}.dds x2 ON x0.num_ruc=x2.dds_numruc 
+INNER JOIN ${BD_LND}.dds_ruc x2 ON x0.num_ruc=x2.dds_numruc 
 WHERE x2.dds_domici = '1'  AND x2.dds_docide IN ('1','2','3','4','5','7','8')
 AND (substr(x0.num_ruc,1,1) <>'2' OR  x0.num_ruc in (select num_ruc from ${BD_STG}.tmp093168_rucs20_incluir))
 ) WITH DATA NO PRIMARY INDEX ;
@@ -393,6 +408,30 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr03_cndestino2 AS
 /***********************Genera Detalle de Diferencias**************************/
 /*=============================================================================*/	
 
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_total_${KPI_01}';
+.IF activitycount = 0 THEN .GOTO ok 
+
+DROP TABLE ${BD_STG}.tmp093168_total_${KPI_01}	;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
+CREATE MULTISET TABLE ${BD_STG}.tmp093168_total_${KPI_01} AS (
+    SELECT  x0.num_ruc,x0.num_docide_empl,x1.periodo,x1.num_ruc as num_rucB
+      FROM (
+    SELECT 
+    DISTINCT num_ruc,num_docide_empl,SUBSTR(z.per_decla,5,2)||SUBSTR(z.per_decla,1,4) as per_decla
+    FROM ${BD_STG}.tmp093168_kpigr03_detcntpertr z
+      ) x0
+      FULL JOIN ${BD_STG}.tmp093168_kpigr03_detcntperfv x1 
+      ON
+      x0.num_ruc=x1.num_ruc and
+	x0.num_docide_empl=x1.num_doc and
+	x0.per_decla =x1.periodo
+) WITH DATA NO PRIMARY INDEX;
+
+.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
+
 SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_dif_${KPI_01}';
 .IF activitycount = 0 THEN .GOTO ok 
 
@@ -402,37 +441,33 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_01}	;
 .label ok;	
 
     CREATE MULTISET TABLE ${BD_STG}.tmp093168_dif_${KPI_01} AS (
-      SELECT DISTINCT num_ruc,num_docide_empl,
-                        SUBSTR(per_decla,5,2)||SUBSTR(per_decla,1,4) as per_decla
-      FROM ${BD_STG}.tmp093168_kpigr03_detcntpertr
-      EXCEPT ALL
-      SELECT num_ruc,num_doc,periodo 
-      FROM ${BD_STG}.tmp093168_kpigr03_detcntperfv
+      SELECT y0.num_ruc,y0.num_docide_empl,y0.periodo
+	    FROM ${BD_STG}.tmp093168_total_${KPI_01} y0
+	    WHERE y0.num_rucB is null
     ) WITH DATA NO PRIMARY INDEX;
 
   .IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
- 	.EXPORT FILE ${FILE_KPI01};
-   
-   LOCK ROW FOR ACCESS
-	 SELECT 
-	    DISTINCT 
-	        y0.num_ruc as num_ruc_trab,
-	        y0.num_docide_empl as num_ruc_empl,
-	        y0.num_nabono,
-	        y0.cod_formul,
-	        y0.num_orden,
-	        y0.per_decla as per_dif
-	  FROM ${BD_STG}.tmp093168_kpigr03_detcntpertr y0
-	  INNER JOIN ${BD_STG}.tmp093168_dif_${KPI_01} y1 
-	  ON  y0.num_ruc=y1.num_ruc 
-	  AND y0.num_docide_empl=y1.num_docide_empl
-	  AND SUBSTR(y0.per_decla,5,2)||SUBSTR(y0.per_decla,1,4)=y1.per_decla
-    ORDER BY y0.num_ruc,y0.per_decla ;
+---------------------------------------------------------------------------------------------  
 
-	.IF ERRORCODE <> 0 THEN .GOTO error_shell;. 
+SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_total_${KPI_02}';
+.IF activitycount = 0 THEN .GOTO ok 
 
-	.EXPORT RESET;
+DROP TABLE ${BD_STG}.tmp093168_total_${KPI_02}	;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+
+.label ok;
+
+CREATE MULTISET TABLE ${BD_STG}.tmp093168_total_${KPI_02} AS (
+	SELECT x0.num_ruc,x0.num_doc,x0.periodo,x1.num_ruc as num_rucB 
+	FROM ${BD_STG}.tmp093168_kpigr03_detcntperfv x0
+	FULL JOIN ${BD_STG}.tmp093168_kpigr03_detcntpermdb x1 ON
+	x0.num_ruc=x1.num_ruc and
+	x0.num_doc=x1.num_doc and
+	x0.periodo=x1.num_perservicio
+) WITH DATA NO PRIMARY INDEX;
+
+.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
 SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_dif_${KPI_02}';
 .IF activitycount = 0 THEN .GOTO ok 
@@ -443,32 +478,16 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
 .label ok;
 
   CREATE MULTISET TABLE ${BD_STG}.tmp093168_dif_${KPI_02} AS (
-     SELECT  DISTINCT 
-	          y0.num_ruc as num_ruc_trab,
-	          y0.num_doc as num_ruc_empl,
-	          y0.periodo as per_dif
-	  FROM
-	  (
-	    SELECT num_ruc,num_doc,periodo 
-	    FROM ${BD_STG}.tmp093168_kpigr03_detcntperfv
-	    EXCEPT ALL
-	    SELECT num_ruc,num_doc,num_perservicio
-	    FROM ${BD_STG}.tmp093168_kpigr03_detcntpermdb
-	  ) y0
+   SELECT y0.num_ruc as num_ruc_trab,
+			   y0.num_doc as num_ruc_empl,
+			   y0.periodo as per_dif
+		FROM ${BD_STG}.tmp093168_total_${KPI_02} y0 
+		WHERE y0.num_rucB is null
   ) WITH DATA NO PRIMARY INDEX;
 
   .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
 
-  	.EXPORT FILE ${FILE_KPI02};
-    
-    LOCK ROW FOR ACCESS
-	  SELECT * FROM ${BD_STG}.tmp093168_dif_${KPI_02}
-    ORDER BY 1,3;
-    
-	 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
-
-	.EXPORT RESET;
 
 /********************INSERT EN TABLA FINAL***********************************/
 
@@ -478,7 +497,7 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
   .IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
   INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT 
-  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF)
+  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF_OD,CNT_REGDIF_DO,CNT_REGCOINC)
   SELECT
           '${PERIODO}',
         x0.ind_presdj,
@@ -489,9 +508,12 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
         else 0 end as cant_origen,
         coalesce(x1.cant_per_destino1,0) as cant_destino,
         case when x0.ind_presdj=0 then 
-        case when (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01})=0 then 1 else 0 end 
-        end as ind_incuniv,
-        case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01}) END as cnt_regdif
+        case when ((select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01})=0 and
+                  (select count(*) from ${BD_STG}.tmp093168_kpigr03_detcntpertr)<>0)
+        then 1 else 0 end end as ind_incuniv,
+        case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01}) END as cnt_regdif,
+        case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_total_${KPI_01} where num_ruc is null) end as cnt_regdif_do,
+			  case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_total_${KPI_01} where num_ruc=num_rucB) end as cnt_regcoinc
   FROM 
   (
       select y.ind_presdj,SUM(y.cant_per_origen) as cant_per_origen
@@ -514,7 +536,7 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
   .IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
   INSERT INTO ${BD_DQ}.T11908DETKPITRIBINT 
-  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF)
+  (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF_OD,CNT_REGDIF_DO,CNT_REGCOINC)
   SELECT '${PERIODO}',
           x0.ind_presdj,
           '${KPI_02}',
@@ -524,9 +546,12 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
                   (select coalesce(sum(cant_per_destino2),0) from ${BD_STG}.tmp093168_kpigr03_cndestino2)
           else 0 end AS cant_destino,
         case when x0.ind_presdj=0 then 
-        case when (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_02})=0 then 1 else 0 end 
-        end as ind_incuniv,
-        case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_02}) END as cnt_regdif
+        case when ((select count(*) from ${BD_STG}.tmp093168_dif_${KPI_02})=0 and
+                  (select count(*) from ${BD_STG}.tmp093168_kpigr03_detcntperfv)<>0)
+        then 1 else 0 end end as ind_incuniv,
+        case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_dif_${KPI_02}) END as cnt_regdif,
+        case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_total_${KPI_02} where num_ruc is null) end as cnt_regdif_do,
+			  case when x0.ind_presdj=0 then (select count(*) from ${BD_STG}.tmp093168_total_${KPI_02} where num_ruc=num_rucB) end as cnt_regcoinc
   FROM 
   (
     select y.ind_presdj,SUM(y.cant_per_destino1) as cant_per_destino1
@@ -543,7 +568,42 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
 
   .IF ERRORCODE <> 0 THEN .GOTO error_shell;
  
+/********************************************************************************/
 
+
+ 
+
+ 	.EXPORT FILE ${FILE_KPI01};
+   
+   LOCK ROW FOR ACCESS
+	 SELECT 
+	    DISTINCT 
+	        y0.num_ruc as num_ruc_trab,
+	        y0.num_docide_empl as num_ruc_empl,
+	        y0.num_nabono,
+	        y0.cod_formul,
+	        y0.num_orden,
+	        y0.per_decla as per_dif
+	  FROM ${BD_STG}.tmp093168_kpigr03_detcntpertr y0
+	  INNER JOIN ${BD_STG}.tmp093168_dif_${KPI_01} y1 
+	  ON  y0.num_ruc=y1.num_ruc 
+	  AND y0.num_docide_empl=y1.num_docide_empl
+	  AND SUBSTR(y0.per_decla,5,2)||SUBSTR(y0.per_decla,1,4)=y1.periodo
+    ORDER BY y0.num_ruc,y0.per_decla ;
+
+	.IF ERRORCODE <> 0 THEN .GOTO error_shell;. 
+
+	.EXPORT RESET;
+
+   	.EXPORT FILE ${FILE_KPI02};
+    
+    LOCK ROW FOR ACCESS
+	  SELECT * FROM ${BD_STG}.tmp093168_dif_${KPI_02}
+    ORDER BY 1,3;
+    
+	 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
+
+	.EXPORT RESET;
 
 /********************************************************************************/
 
