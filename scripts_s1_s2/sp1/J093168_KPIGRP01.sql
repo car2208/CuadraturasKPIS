@@ -329,7 +329,7 @@ DROP TABLE BDDWESTG.tmp093168_dif_K001022022;
    case when x0.ind_presdj=0 then 
    case when (select count(*) from BDDWESTG.tmp093168_dif_K001022022)=0 then 1 else 0 end 
    end as ind_incuniv,
-   case when x0.ind_presdj=0 then (select count(*) from BDDWESTG.tmp093168_dif_K001022022) END as cnt_regdif
+   case when x0.ind_presdj=0 then (select count(*) from BDDWESTG.tmp093168_dif_K001022022) END as cnt_regdifasdasdass
  FROM 
  (
   select y.ind_presdj,SUM(y.cant_rxh_destino1) as cant_rxh_destino1
