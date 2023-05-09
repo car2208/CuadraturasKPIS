@@ -34,12 +34,13 @@ FECHA=${10}
 
 MY_DIR=`dirname $0`
 NOMBREBASE=`basename ${0} .sh`
+DATE=`date +%Y%m%d`
 LOGONDB=${server_TD}'/'${username_TD}',$tdwallet('${walletPwd_TD}')'
 FILELOG=${path_log_TD}'/'${NOMBREBASE}'.log'
 FILEERR=${path_log_TD}'/'${NOMBREBASE}'.err'
 KPI_01='K036012022'
 plano='/work1/teradata/dat/093168/093168_KPI_ListFormularios.txt'
-FILE_KPI01='/work1/teradata/dat/093168/DIF_'${KPI_01}'_CAS111_TRANVSFVIR_'${DATE}'.unl'
+FILE_KPI01='/work1/teradata/dat/093168/DIF_'${KPI_01}'_TRANVSMODB_'${DATE}'.unl'
 
 rm -f ${FILE_KPI01}
 

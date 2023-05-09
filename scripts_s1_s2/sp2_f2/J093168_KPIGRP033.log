@@ -1,0 +1,351 @@
+BTEQ 16.20.00.07 (32-bit) Tue Apr 18 16:08:06 2023 PID: 25231834
+ 
++---------+---------+---------+---------+---------+---------+---------+----
+
+LOGON tdtp01s2/usr_carga_desa,
+
+ *** Logon successfully completed.
+ *** Teradata Database Release is 16.20.53.55                   
+ *** Teradata Database Version is 16.20.53.55                     
+ *** Transaction Semantics are BTET.
+ *** Session Character Set Name is 'ASCII'.
+ 
+ *** Total elapsed time was 1 second.
+ 
++---------+---------+---------+---------+---------+---------+---------+----
+
+DATABASE BDDWEDQD;
+
+ *** New default database accepted. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+----
+
+.SET FORMAT OFF;
++---------+---------+---------+---------+---------+---------+---------+----
+.SET WIDTH 32000;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.SET SEPARATOR '|';
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.SET TITLEDASHES OFF;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+SEL CURRENT_TIMESTAMP;
+
+ *** Query completed. One row found. One column returned. 
+ *** Total elapsed time was 1 second.
+
+            Current TimeStamp(6)
+2023-04-18 16:08:52.870000-05:00
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+
+/************************************************************************************************************/
+---------------Cantidad de presentaciones en Recauda. t03djcab Y t04djdet. CAS 406 426.---------------------------
+/************************************************************************************************************/
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = 'BDDWESTGD' AND TableName = 'tmp093168_kpigr33_cas406_426_djtot';
+
+ *** Query completed. No rows found. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.IF activitycount = 0 THEN .GOTO ok
+.GOTO ok
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+DROP TABLE BDDWESTGD.tmp093168_kpigr33_cas406_426_djtot;
+ *** Skipped.
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+ *** Skipped.
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+
+.label ok;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+CREATE MULTISET TABLE BDDWESTGD.tmp093168_kpigr33_cas406_426_djtot
+AS
+(
+    select x0.num_nabono,
+           x0.cod_formul,
+           x0.num_orden,
+           x0.num_ruc,
+           x0.cod_per,
+           coalesce(MAX(CASE WHEN x1.num_cas='406' THEN trycast(x1.val_cas as decimal(25,4)) END),0) AS cas406,
+           coalesce(MAX(CASE WHEN x1.num_cas='426' THEN trycast(x1.val_cas as decimal(25,4)) END),0) AS cas426,
+          (cas406+cas426) val_cas
+    from BDDWETB.t8593djcab x0
+    inner join BDDWETB.t8594djdet x1 ON 
+    x0.num_nabono=x1.num_nabono and 
+    x0.cod_formul=x1.cod_formul and 
+    x0.num_orden=x1.num_orden
+    where x1.num_cas in('406','426') and
+    x0.fec_finvig=2000101 and
+    x1.fec_finvig=2000101 and
+    x0.ind_deldwe='0' and
+    x1.ind_deldwe='0' and
+    x0.cod_per between '202201' and '202212' and
+    x0.cod_formul='0695'
+    GROUP BY 1,2,3,4,5
+) WITH DATA UNIQUE PRIMARY INDEX (num_nabono,cod_formul,num_orden);
+
+ *** Table has been created. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+/************************************************************************************************************/
+----------------Cantidad de presentaciones en el Recauda.T1391F695EXTITF. Monto Base -------------------------
+/************************************************************************************************************/
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = 'BDDWESTGD' AND TableName = 'tmp093168_kpigr33_mtobase_detextitf';
+
+ *** Query completed. No rows found. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.IF activitycount = 0 THEN .GOTO ok
+.GOTO ok
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+DROP TABLE BDDWESTGD.tmp093168_kpigr33_mtobase_detextitf;
+ *** Skipped.
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+ *** Skipped.
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+.label ok;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+CREATE MULTISET TABLE BDDWESTGD.tmp093168_kpigr33_mtobase_detextitf
+AS
+(
+select num_nabono,num_formul as cod_formul,num_orden,num_docdeclate,per_dec,sum(mto_base) as mto_base
+from BDDWETB.t8477itfext x0
+where x0.fec_finvig=2000101 and x0.ind_deldwe='0'
+and x0.per_dec between '202201' and '202212'
+and x0.num_formul='0695'
+group by 1,2,3,4,5
+) WITH DATA UNIQUE PRIMARY INDEX (num_nabono,cod_formul,num_orden);
+
+ *** Table has been created. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+
+-----------------------------------------------Diferencias ------------------------------------------------------
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = 'BDDWESTGD' AND TableName = 'tmp093168_total_K033012022';
+
+ *** Query completed. One row found. One column returned. 
+ *** Total elapsed time was 1 second.
+
+   1
+   1
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.IF activitycount = 0 THEN .GOTO ok
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+DROP TABLE BDDWESTGD.tmp093168_total_K033012022 ;
+
+ *** Table has been dropped. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+.label ok;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+CREATE MULTISET TABLE BDDWESTGD.tmp093168_total_K033012022
+AS
+(
+SELECT 
+     x0.num_nabono,
+     x0.cod_formul,
+     x0.num_orden,
+     x0.num_ruc,
+     x0.cod_per,
+     x0.val_cas,
+     x1.mto_base,
+     x1.num_docdeclate as num_rucB
+FROM BDDWESTGD.tmp093168_kpigr33_cas406_426_djtot x0
+FULL JOIN BDDWESTGD.tmp093168_kpigr33_mtobase_detextitf x1 ON
+x0.num_nabono=x1.num_nabono and
+x0.cod_formul=x1.cod_formul and
+x0.num_orden=x1.num_orden and
+x0.num_ruc=x1.num_docdeclate and 
+x0.cod_per=x1.per_dec and
+x0.val_cas=x1.mto_base
+) WITH DATA PRIMARY INDEX (num_nabono,cod_formul,num_orden);
+
+ *** Table has been created. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+SELECT 1 FROM  dbc.TablesV WHERE databasename = 'BDDWESTGD' AND TableName = 'tmp093168_dif_K033012022';
+
+ *** Query completed. One row found. One column returned. 
+ *** Total elapsed time was 1 second.
+
+   1
+   1
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.IF activitycount = 0 THEN .GOTO ok
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+DROP TABLE BDDWESTGD.tmp093168_dif_K033012022 ;
+
+ *** Table has been dropped. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+.label ok;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+ CREATE MULTISET TABLE BDDWESTGD.tmp093168_dif_K033012022 AS (
+  SELECT x0.num_nabono,
+         x0.cod_formul,
+         x0.num_orden,
+         x0.num_ruc,
+         x0.cod_per,
+         x0.val_cas  as val_mtobase_t04,
+         x0.mto_base as val_mtobase_itfext
+    FROM BDDWESTGD.tmp093168_total_K033012022 x0
+    WHERE x0.num_rucB is null 
+ )  WITH DATA NO PRIMARY INDEX;
+
+ *** Table has been created. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+/****************************************************************************/
+/********************INSERT EN TABLA FINAL***********************************/
+
+  DELETE FROM BDDWEDQD.T11908DETKPITRIBINT 
+    WHERE COD_KPI='K033012022'  AND FEC_CARGA=CURRENT_DATE;
+
+ *** Delete completed. No rows removed. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+    
+    .IF ERRORCODE <> 0 THEN .GOTO error_shell;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+    
+ INSERT INTO BDDWEDQD.T11908DETKPITRIBINT 
+ (COD_PER,IND_PRESDJ,COD_KPI,FEC_CARGA,CNT_REGORIGEN,CNT_REGIDESTINO,IND_INCUNIV,CNT_REGDIF_OD,CNT_REGDIF_DO,CNT_REGCOINC)
+ SELECT 
+  '2022',
+   99,
+  'K033012022',
+  CURRENT_DATE,
+        (select count(*) from BDDWESTGD.tmp093168_kpigr33_cas406_426_djtot),
+        (select count(*) from BDDWESTGD.tmp093168_kpigr33_mtobase_detextitf),
+        case when ((select count(*) from BDDWESTGD.tmp093168_dif_K033012022)=0 and
+                  (select count(*) from BDDWESTGD.tmp093168_kpigr33_cas406_426_djtot)<>0)
+        then 1 else 0 end,
+  (select count(*) from BDDWESTGD.tmp093168_dif_K033012022),
+        (select count(*) from BDDWESTGD.tmp093168_total_K033012022 where num_ruc is null),
+  (select count(*) from BDDWESTGD.tmp093168_total_K033012022 where num_ruc=num_rucB);
+
+ *** Insert completed. One row added. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+ .IF ERRORCODE <> 0 THEN .GOTO error_shell;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+
+/**********************************************************************************/
+
+ .EXPORT FILE /work1/teradata/dat/093168/DIF_K033012022_20230418.unl;
+ *** Warning: No data format given. Assuming REPORT carries over.
+ *** To reset export, type .EXPORT RESET
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+ LOCK ROW FOR ACCESS
+ SELECT * FROM BDDWESTGD.tmp093168_dif_K033012022 
+ ORDER BY 3,4;
+
+ *** Query completed. 10 rows found. 7 columns returned. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+ .IF ERRORCODE <> 0 THEN .GOTO error_shell;
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+ .EXPORT RESET;
+ *** Output returned to console.
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+/********************************************************************************/
+
+ DROP TABLE BDDWESTGD.tmp093168_kpigr33_mtobase_detextitf;
+
+ *** Table has been dropped. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+ DROP TABLE BDDWESTGD.tmp093168_kpigr33_cas406_426_djtot;
+
+ *** Table has been dropped. 
+ *** Total elapsed time was 1 second.
+
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+SEL CURRENT_TIMESTAMP;
+
+ *** Query completed. One row found. One column returned. 
+ *** Total elapsed time was 1 second.
+
+            Current TimeStamp(6)
+2023-04-18 16:08:55.710000-05:00
+
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+
+    
+LOGOFF;
+ *** You are now logged off from the DBC.
++---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-
+QUIT 0;
+ *** Exiting BTEQ...
+ *** RC (return code) = 0 
+  ***********************************************
+  ***  J093168_KPIGRP033   ***
+  ***            TERMINO PROCESO OK           ***
+  ***********************************************

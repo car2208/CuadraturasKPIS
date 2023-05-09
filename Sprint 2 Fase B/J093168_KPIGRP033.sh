@@ -74,8 +74,8 @@ AS
            x0.num_orden,
            x0.num_ruc,
            x0.cod_per,
-          coalesce(trycast(x1.val_cas as decimal(25,4)),0) as cas406,
-          coalesce(trycast(x1.val_cas as decimal(25,4)),0) as cas426,
+           coalesce(MAX(CASE WHEN x1.num_cas='406' THEN trycast(x1.val_cas as decimal(25,4)) END),0) AS cas406,
+           coalesce(MAX(CASE WHEN x1.num_cas='426' THEN trycast(x1.val_cas as decimal(25,4)) END),0) AS cas426,
           (cas406+cas426) val_cas
     from ${BD_TB}.t8593djcab x0
     inner join ${BD_TB}.t8594djdet x1 ON 
@@ -89,6 +89,8 @@ AS
     x1.ind_deldwe='0' and
     x0.cod_per between '${PERIODO}01' and '${PERIODO}12' and
     x0.cod_formul='0695'
+    and val_cas>0
+    GROUP BY 1,2,3,4,5
 ) WITH DATA UNIQUE PRIMARY INDEX (num_nabono,cod_formul,num_orden);
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
@@ -186,7 +188,7 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_01}	;
 		'${KPI_01}',
 		CURRENT_DATE,
         (select count(*) from ${BD_STG}.tmp093168_kpigr33_cas406_426_djtot),
-        (select count(*) from ${BD_STG}.tmp093168_total_${KPI_01} where val_cas=mto_base),
+        (select count(*) from ${BD_STG}.tmp093168_kpigr33_mtobase_detextitf),
         case when ((select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01})=0 and
                   (select count(*) from ${BD_STG}.tmp093168_kpigr33_cas406_426_djtot)<>0)
         then 1 else 0 end,

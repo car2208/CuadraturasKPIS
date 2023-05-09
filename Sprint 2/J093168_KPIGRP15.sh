@@ -263,7 +263,8 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_total_${KPI_01} AS (
 					x0.ser_doc,
 					x0.num_doc,
 					x0.mto_deduccion_fin,
-					x1.num_ruc as num_rucB
+					x1.num_ruc as num_rucB,
+					X1.mto_deduccion as mto_deduccionB
 		FROM ${BD_STG}.tmp093168_kpi15_detcpeval_tr x0	
 		FULL JOIN  ${BD_STG}.tmp093168_kpi15_detcpeval_fv x1 	on
 		x0.ann_ejercicio=x1.ann_ejercicio and
@@ -318,7 +319,8 @@ DROP TABLE ${BD_STG}.tmp093168_total_${KPI_02};
 			x0.num_serie,
 			x0.num_comprob,
 			x0.mto_deduccion,
-			x1.num_ruc as num_rucB
+			x1.num_ruc as num_rucB,
+			x1.mto_deduccion as mto_deduccionB
 		FROM ${BD_STG}.tmp093168_kpi15_detcpeval_fv x0
 		FULL JOIN  ${BD_STG}.tmp093168_kpi15_detcpeval_mdb x1 ON
 		x0.ann_ejercicio=x1.ann_ejercicio and
@@ -383,7 +385,7 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02}	;
 			then 1 else 0 end 
 			end as ind_incuniv,
 			case when x0.ind_presdj=0 then (select coalesce(sum(mto_deduccion),0) from ${BD_STG}.tmp093168_dif_${KPI_01}) END as cnt_regdif,
-			case when x0.ind_presdj=0 then (select coalesce(sum(mto_deduccion_fin),0) from ${BD_STG}.tmp093168_total_${KPI_01} where num_ruc is null)  end as cnt_regdif_do,
+			case when x0.ind_presdj=0 then (select coalesce(sum(mto_deduccionB),0) from ${BD_STG}.tmp093168_total_${KPI_01} where num_ruc is null)  end as cnt_regdif_do,
 			case when x0.ind_presdj=0 then (select coalesce(sum(mto_deduccion_fin),0) from ${BD_STG}.tmp093168_total_${KPI_01} where num_ruc=num_rucB) end as cnt_regcoinc
 	FROM 
 	(
@@ -424,7 +426,7 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02}	;
 			then 1 else 0 end 
 			end as ind_incuniv,
 			case when x0.ind_presdj=0 then (select coalesce(sum(mto_deduccion),0) from ${BD_STG}.tmp093168_dif_${KPI_02}) END as cnt_regdif,
-			case when x0.ind_presdj=0 then (select coalesce(sum(mto_deduccion),0) from ${BD_STG}.tmp093168_total_${KPI_02} where num_ruc is null) end as cnt_regdif_do,
+			case when x0.ind_presdj=0 then (select coalesce(sum(mto_deduccionB),0) from ${BD_STG}.tmp093168_total_${KPI_02} where num_ruc is null) end as cnt_regdif_do,
 			case when x0.ind_presdj=0 then (select coalesce(sum(mto_deduccion),0) from ${BD_STG}.tmp093168_total_${KPI_02} where num_ruc=num_rucB) end as cnt_regcoinc
 	FROM 
 	(

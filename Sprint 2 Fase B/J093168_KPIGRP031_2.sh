@@ -138,7 +138,7 @@ cnt_origen    varchar(20)
 .REPEAT *
 USING 
 (
-cnt_origen varchar(10)
+cnt_origen varchar(20)
 )
 INSERT INTO  ${BD_STG}.tmp093168_kpigr31_02_cantorigen VALUES
 (
