@@ -128,7 +128,7 @@ DROP TABLE ${BD_STG}.tmp093168_kpigr34_cantorigen;
 
 CREATE MULTISET TABLE ${BD_STG}.tmp093168_kpigr34_cantorigen
 (
-cnt_origen    varchar(10)
+cnt_origen    varchar(20)
 ) NO PRIMARY INDEX;
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell;
@@ -138,7 +138,7 @@ cnt_origen    varchar(10)
 .REPEAT *
 USING 
 (
-cnt_origen varchar(10)
+cnt_origen varchar(20)
 )
 INSERT INTO  ${BD_STG}.tmp093168_kpigr34_cantorigen VALUES
 (

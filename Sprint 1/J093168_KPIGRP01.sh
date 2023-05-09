@@ -109,10 +109,7 @@ CREATE MULTISET TABLE ${BD_STG}.tmp093168_cantnotascredito as
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
 
-
 /*******************Última DJ******************/
-
-
 
 SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_udjkpi1';
 .IF activitycount = 0 THEN .GOTO ok 
@@ -445,7 +442,7 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_01}	;
 	WHERE y0.num_rucB is null
 	) WITH DATA NO PRIMARY INDEX;
 
-	.IF ERRORCODE <> 0 THEN .GOTO error_shell;
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
 
 SELECT 1 FROM  dbc.TablesV WHERE databasename = '${BD_STG}' AND TableName = 'tmp093168_total_${KPI_02}';
@@ -486,13 +483,11 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
 	WHERE y0.num_rucB is null
 	) WITH DATA NO PRIMARY INDEX;
 
-	.IF ERRORCODE <> 0 THEN .GOTO error_shell; 
-
-
+.IF ERRORCODE <> 0 THEN .GOTO error_shell;
 
 /****************************************************************************/
 /********************INSERT EN TABLA FINAL***********************************/
-    
+
     DELETE FROM ${BD_DQ}.T11908DETKPITRIBINT 
     WHERE COD_KPI='${KPI_01}'  AND FEC_CARGA=CURRENT_DATE;
     
@@ -571,7 +566,7 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_02};
 
 	LOCK ROW FOR ACCESS
 	SELECT * FROM ${BD_STG}.tmp093168_dif_${KPI_01} 
-	ORDER BY num_ruc_trab
+	ORDER BY num_ruc_trab;
 
 	.IF ERRORCODE <> 0 THEN .GOTO error_shell;
 

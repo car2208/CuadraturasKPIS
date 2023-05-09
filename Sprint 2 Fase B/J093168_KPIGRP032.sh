@@ -87,6 +87,7 @@ AS
     x1.ind_deldwe='0' and
     x0.cod_per between '${PERIODO}01' and '${PERIODO}12' and
     x0.cod_formul='0695'
+    and val_cas>0
 ) WITH DATA UNIQUE PRIMARY INDEX (num_nabono,cod_formul,num_orden);
 
 .IF ERRORCODE <> 0 THEN .GOTO error_shell; 
@@ -184,9 +185,9 @@ DROP TABLE ${BD_STG}.tmp093168_dif_${KPI_01}	;
 		'${KPI_01}',
 		CURRENT_DATE,
         (select count(*) from ${BD_STG}.tmp093168_kpigr32_cas593djtot),
-        (select count(*) from ${BD_STG}.tmp093168_total_${KPI_01} where val_cas=cnt_reg),
+        (select count(*) from ${BD_STG}.tmp093168_kpigr32_cas593detextitf),
         case when ((select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01})=0 and
-                  (select count(*) from ${BD_STG}.tmp093168_kpigr32_cas593djtot)<>0)
+                   (select count(*) from ${BD_STG}.tmp093168_kpigr32_cas593djtot)<>0)
         then 1 else 0 end,
 		(select count(*) from ${BD_STG}.tmp093168_dif_${KPI_01}),
         (select count(*) from ${BD_STG}.tmp093168_total_${KPI_01} where num_ruc is null),
